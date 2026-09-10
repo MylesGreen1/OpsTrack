@@ -7,6 +7,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import com.opstrack.aircraft.Aircraft;
+import com.opstrack.technician.Technician;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
@@ -28,6 +29,10 @@ public class MaintenanceTask {
     @ManyToOne
     @JoinColumn(name = "aircraft_id")
     private Aircraft aircraft;
+
+    @ManyToOne
+    @JoinColumn(name = "technician_id")
+    private Technician technician;
 
     public MaintenanceTask() {
     }
@@ -66,6 +71,14 @@ public class MaintenanceTask {
 
     public Aircraft getAircraft() {
         return aircraft;
+    }
+
+    public Technician getTechnician() {
+        return technician;
+    }
+
+    public void setTechnician(Technician technician) {
+        this.technician = technician;
     }
 
     public void setTitle(String title) {

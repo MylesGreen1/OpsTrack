@@ -1,5 +1,6 @@
 package com.opstrack.maintenance;
 
+import com.opstrack.technician.Technician;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -82,5 +83,34 @@ public class MaintenanceTaskControllerTest {
                         .param("status", "IN_PROGRESS"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("IN_PROGRESS"));
+    }
+
+    @Test
+    void shouldAssignTechnicianToMaintenanceTask() throws Exception {
+        Long taskId = 1L;
+        Long technicianId = 2L;
+
+        Technician technician = new Technician(
+                "Alex",
+                "Carter",
+                "TECH-002",
+                "Avionics",
+                true
+        );
+
+        MaintenanceTask task = new MaintenanceTask();
+        task.setTechnician(technician);
+
+        when(maintenanceTaskService.assignTechnician(taskId, technicianId))
+                .thenReturn(task);
+
+        mockMvc.perform(
+                        patch("/api/maintenance-tasks/1/technician/2")
+                )
+                .andExpect(status().isOk())
+                .andExpect(
+                        jsonPath("$.technician.employeeNumber")
+                                .value("TECH-002")
+                );
     }
 }

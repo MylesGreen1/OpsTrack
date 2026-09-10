@@ -31,4 +31,12 @@ public class MaintenanceTaskController {
     ) {
         return maintenanceTaskService.updateTaskStatus(taskId, status);
     }
+
+    @PatchMapping("/{taskId}/technician/{technicianId}")
+    public MaintenanceTask assignTechnician(
+            @PathVariable Long taskId,
+            @PathVariable Long technicianId
+    ) {
+        return maintenanceTaskService.assignTechnician(taskId, technicianId);
+    }
 }

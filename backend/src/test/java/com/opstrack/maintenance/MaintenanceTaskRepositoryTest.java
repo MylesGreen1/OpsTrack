@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import java.util.List;
+import com.opstrack.technician.Technician;
+import com.opstrack.technician.TechnicianRepository;
 
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -22,6 +24,9 @@ public class MaintenanceTaskRepositoryTest {
 
     @Autowired
     private AircraftRepository aircraftRepository;
+
+    @Autowired
+    private TechnicianRepository technicianRepository;
 
 
 
@@ -86,6 +91,45 @@ public class MaintenanceTaskRepositoryTest {
         assertEquals(2, tasks.size());
         assertEquals(aircraft.getId(), tasks.get(0).getAircraft().getId());
 
+    }
+
+    @Test
+    void shouldAssignTechnicianToMaintenanceTask() {
+        Aircraft aircraft = new Aircraft(
+                "OT-003",
+                "F-16",
+                AircraftStatus.MISSION_CAPABLE,
+                "Hangar 3",
+                "Aircraft for technician assignment test"
+        );
+
+        aircraftRepository.save(aircraft);
+
+        Technician technician = new Technician(
+                "Alex",
+                "Carter",
+                "TECH-002",
+                "Avionics",
+                true
+        );
+
+        technicianRepository.save(technician);
+
+        MaintenanceTask task = new MaintenanceTask(
+                "Avionics inspection",
+                "Inspect aircraft avionics systems",
+                MaintenanceStatus.OPEN,
+                MaintenancePriority.HIGH,
+                aircraft
+        );
+
+        task.setTechnician(technician);
+
+        MaintenanceTask savedTask = maintenanceTaskRepository.save(task);
+
+        assertNotNull(savedTask.getId());
+        assertNotNull(savedTask.getTechnician());
+        assertEquals("TECH-002", savedTask.getTechnician().getEmployeeNumber());
     }
 
 }

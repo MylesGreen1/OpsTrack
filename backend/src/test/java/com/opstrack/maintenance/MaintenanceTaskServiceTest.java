@@ -1,5 +1,7 @@
 package com.opstrack.maintenance;
 
+import com.opstrack.technician.Technician;
+import com.opstrack.technician.TechnicianRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -19,6 +21,9 @@ public class MaintenanceTaskServiceTest {
 
     @Mock
     private MaintenanceTaskRepository maintenanceTaskRepository;
+
+    @Mock
+    private TechnicianRepository technicianRepository;
 
     @InjectMocks
     private MaintenanceTaskService maintenanceTaskService;
@@ -78,6 +83,42 @@ public class MaintenanceTaskServiceTest {
         assertEquals(MaintenanceStatus.IN_PROGRESS, result.getStatus());
 
         verify(maintenanceTaskRepository).findById(taskId);
+        verify(maintenanceTaskRepository).save(task);
+    }
+
+    @Test
+    void shouldAssignTechnicianToMaintenanceTask() {
+        Long taskId = 1L;
+        Long technicianId = 2L;
+
+        MaintenanceTask task = new MaintenanceTask();
+        Technician technician = new Technician(
+                "Alex",
+                "Carter",
+                "TECH-002",
+                "Avionics",
+                true
+        );
+
+        when(maintenanceTaskRepository.findById(taskId))
+                .thenReturn(Optional.of(task));
+
+        when(technicianRepository.findById(technicianId))
+                .thenReturn(Optional.of(technician));
+
+        when(maintenanceTaskRepository.save(task))
+                .thenReturn(task);
+
+        MaintenanceTask result =
+                maintenanceTaskService.assignTechnician(
+                        taskId,
+                        technicianId
+                );
+
+        assertSame(technician, result.getTechnician());
+
+        verify(maintenanceTaskRepository).findById(taskId);
+        verify(technicianRepository).findById(technicianId);
         verify(maintenanceTaskRepository).save(task);
     }
 }
