@@ -25,6 +25,9 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
 
+                        .requestMatchers("/api/auth/**")
+                        .permitAll()
+
                         .requestMatchers("/api/inspections/**")
                         .hasAnyRole("QA_INSPECTOR", "ADMIN")
 
