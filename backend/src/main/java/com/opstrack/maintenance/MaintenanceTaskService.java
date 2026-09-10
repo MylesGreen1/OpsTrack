@@ -20,4 +20,15 @@ public class MaintenanceTaskService {
     public List<MaintenanceTask> getTasksByAircraftId(Long aircraftId) {
         return maintenanceTaskRepository.findByAircraftId(aircraftId);
     }
+
+    public MaintenanceTask updateTaskStatus(Long taskId, MaintenanceStatus status) {
+        MaintenanceTask task = maintenanceTaskRepository.findById(taskId)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Maintenance task not found with id: " + taskId
+                ));
+
+        task.setStatus(status);
+
+        return maintenanceTaskRepository.save(task);
+    }
 }

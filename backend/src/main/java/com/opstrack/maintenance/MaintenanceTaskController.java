@@ -22,7 +22,13 @@ public class MaintenanceTaskController {
     @GetMapping("/aircraft/{aircraftId}")
     public List<MaintenanceTask> getTasksByAircraftId(@PathVariable Long aircraftId) {
         return maintenanceTaskService.getTasksByAircraftId(aircraftId);
-
     }
 
+    @PatchMapping("/{taskId}/status")
+    public MaintenanceTask updateTaskStatus(
+            @PathVariable Long taskId,
+            @RequestParam MaintenanceStatus status
+    ) {
+        return maintenanceTaskService.updateTaskStatus(taskId, status);
+    }
 }

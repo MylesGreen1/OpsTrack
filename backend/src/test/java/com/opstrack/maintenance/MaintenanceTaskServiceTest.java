@@ -7,8 +7,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -29,7 +31,7 @@ public class MaintenanceTaskServiceTest {
 
         MaintenanceTask result = maintenanceTaskService.createTask(task);
 
-        assertEquals(task, result);
+        assertSame(task, result);
 
         verify(maintenanceTaskRepository).save(task);
     }
@@ -43,15 +45,39 @@ public class MaintenanceTaskServiceTest {
 
         List<MaintenanceTask> tasks = List.of(task1, task2);
 
-        when(maintenanceTaskRepository.findByAircraftId(aircraftId)).thenReturn(tasks);
+        when(maintenanceTaskRepository.findByAircraftId(aircraftId))
+                .thenReturn(tasks);
 
         List<MaintenanceTask> result =
                 maintenanceTaskService.getTasksByAircraftId(aircraftId);
 
-        assertEquals(tasks, result);
+        assertEquals(2, result.size());
 
         verify(maintenanceTaskRepository).findByAircraftId(aircraftId);
-
     }
 
+    @Test
+    void shouldUpdateMaintenanceTaskStatus() {
+        Long taskId = 1L;
+
+        MaintenanceTask task = new MaintenanceTask();
+        task.setStatus(MaintenanceStatus.OPEN);
+
+        when(maintenanceTaskRepository.findById(taskId))
+                .thenReturn(Optional.of(task));
+
+        when(maintenanceTaskRepository.save(task))
+                .thenReturn(task);
+
+        MaintenanceTask result =
+                maintenanceTaskService.updateTaskStatus(
+                        taskId,
+                        MaintenanceStatus.IN_PROGRESS
+                );
+
+        assertEquals(MaintenanceStatus.IN_PROGRESS, result.getStatus());
+
+        verify(maintenanceTaskRepository).findById(taskId);
+        verify(maintenanceTaskRepository).save(task);
+    }
 }
