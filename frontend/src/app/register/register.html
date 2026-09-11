@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<div class="register-page">
+
+  <div class="register-card">
+
+    <div class="brand">
+
+      <h1>OpsTrack</h1>
+
+      <p>
+        Aircraft Maintenance & Operations
+        Management System
+      </p>
+
+    </div>
+
+
+    <div class="register-heading">
+
+      <p class="section-label">
+        ACCOUNT REGISTRATION
+      </p>
+
+      <h2>Create Account</h2>
+
+      <p>
+        Create an OpsTrack technician account
+        to access the maintenance system.
+      </p>
+
+    </div>
+
+
+    <form
+      class="register-form"
+      (ngSubmit)="register()"
+    >
+
+      <label>
+
+        <span>Username</span>
+
+        <input
+          type="text"
+          name="username"
+          [(ngModel)]="username"
+          autocomplete="username"
+          placeholder="Choose a username"
+        >
+
+      </label>
+
+
+      <label>
+
+        <span>Password</span>
+
+        <input
+          type="password"
+          name="password"
+          [(ngModel)]="password"
+          autocomplete="new-password"
+          placeholder="Choose a password"
+        >
+
+      </label>
+
+
+      <label>
+
+        <span>Confirm Password</span>
+
+        <input
+          type="password"
+          name="confirmPassword"
+          [(ngModel)]="confirmPassword"
+          autocomplete="new-password"
+          placeholder="Re-enter password"
+        >
+
+      </label>
+
+
+      @if (errorMessage) {
+
+        <div class="error-message">
+          {{ errorMessage }}
+        </div>
+
+      }
+
+
+      @if (successMessage) {
+
+        <div class="success-message">
+          {{ successMessage }}
+        </div>
+
+      }
+
+
+      <button
+        class="register-button"
+        type="submit"
+        [disabled]="loading"
+      >
+
+        @if (loading) {
+          Creating Account...
+        } @else {
+          Create Account
+        }
+
+      </button>
+
+    </form>
+
+
+    <div class="login-link">
+
+      <span>
+        Already have an account?
+      </span>
+
+      <a routerLink="/login">
+        Sign In
+      </a>
+
+    </div>
+
+  </div>
+
+</div>

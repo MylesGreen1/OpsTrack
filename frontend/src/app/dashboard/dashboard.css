@@ -1,0 +1,284 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #172033;
+  background-color: #f4f6f8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.dashboard-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #f4f6f8;
+}
+
+.app-header {
+  background-color: #1f2d3d;
+  color: white;
+  border-bottom: 4px solid #40566f;
+}
+
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 28px 40px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.app-header h1 {
+  margin: 0 0 6px;
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.app-header p {
+  margin: 0;
+  color: #dbe3ea;
+  font-size: 16px;
+}
+
+.user-area {
+  padding: 10px 14px;
+
+  border: 1px solid #71849a;
+  border-radius: 6px;
+
+  color: #e8edf2;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.dashboard-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px;
+
+  flex: 1;
+}
+
+.welcome-section {
+  margin-bottom: 32px;
+}
+
+.section-label {
+  margin: 0 0 8px;
+
+  color: #60758d;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+}
+
+.welcome-section h2,
+.status-header h2 {
+  margin: 0;
+  color: #172033;
+  font-size: 30px;
+}
+
+.section-description {
+  max-width: 720px;
+  margin: 10px 0 0;
+
+  color: #657181;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 22px;
+
+  margin-bottom: 48px;
+}
+
+.dashboard-card {
+  min-height: 220px;
+  padding: 26px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  background-color: white;
+  border: 1px solid #dde3e8;
+  border-radius: 10px;
+
+  color: #172033;
+  text-decoration: none;
+
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+a.dashboard-card {
+  cursor: pointer;
+}
+
+a.dashboard-card:hover {
+  transform: translateY(-4px);
+  border-color: #9baabc;
+  box-shadow: 0 9px 22px rgba(0, 0, 0, 0.11);
+}
+
+a.dashboard-card:focus-visible {
+  outline: 3px solid #7696b8;
+  outline-offset: 4px;
+}
+
+.card-icon {
+  margin-bottom: 24px;
+
+  width: 46px;
+  height: 46px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background-color: #e9eef4;
+  border-radius: 8px;
+
+  font-size: 22px;
+}
+
+.card-content h3 {
+  margin: 0 0 10px;
+
+  color: #172033;
+  font-size: 22px;
+}
+
+.card-content p {
+  margin: 0;
+
+  color: #637080;
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.card-link {
+  display: inline-block;
+  margin-top: 24px;
+
+  color: #3e5d7c;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.status-section {
+  margin-top: 10px;
+}
+
+.status-header {
+  margin-bottom: 20px;
+}
+
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.status-card {
+  padding: 22px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  background-color: white;
+  border: 1px solid #dde3e8;
+  border-radius: 8px;
+
+  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.04);
+}
+
+.status-title {
+  color: #657181;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.status-card strong {
+  color: #172033;
+  font-size: 30px;
+}
+
+.status-description {
+  color: #8a95a2;
+  font-size: 13px;
+}
+
+.app-footer {
+  padding: 22px 40px;
+
+  background-color: #e9edf1;
+  border-top: 1px solid #d8dee5;
+
+  text-align: center;
+}
+
+.app-footer p {
+  margin: 0;
+
+  color: #657181;
+  font-size: 13px;
+}
+
+@media (max-width: 900px) {
+  .status-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 800px) {
+  .header-content {
+    padding: 24px 20px;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .dashboard-container {
+    padding: 28px 20px;
+  }
+
+  .card-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .status-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .welcome-section h2,
+  .status-header h2 {
+    font-size: 25px;
+  }
+
+  .app-header h1 {
+    font-size: 30px;
+  }
+
+  .app-footer {
+    padding: 20px;
+  }
+}
