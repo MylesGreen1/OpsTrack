@@ -44,6 +44,10 @@ export class AircraftComponent implements OnInit {
 
   showAddAircraftForm = false;
 
+  // null means we are adding a new aircraft.
+  // A number means we are editing an existing aircraft.
+  editingAircraftId: number | null = null;
+
   searchTerm = '';
   statusFilter = '';
 
@@ -106,7 +110,29 @@ export class AircraftComponent implements OnInit {
 
     this.formErrorMessage = '';
 
+    this.editingAircraftId = null;
+
     this.resetAircraftForm();
+
+    this.showAddAircraftForm = true;
+  }
+
+  openEditAircraftForm(
+    aircraft: Aircraft
+  ): void {
+
+    this.formErrorMessage = '';
+
+    this.editingAircraftId =
+      aircraft.id;
+
+    this.newAircraft = {
+      tailNumber: aircraft.tailNumber,
+      aircraftType: aircraft.aircraftType,
+      status: aircraft.status,
+      location: aircraft.location,
+      notes: aircraft.notes ?? ''
+    };
 
     this.showAddAircraftForm = true;
   }
@@ -119,59 +145,47 @@ export class AircraftComponent implements OnInit {
 
     this.showAddAircraftForm = false;
 
+    this.editingAircraftId = null;
+
     this.formErrorMessage = '';
+
+    this.resetAircraftForm();
+  }
+
+  saveAircraft(): void {
+
+    if (
+      this.editingAircraftId === null
+    ) {
+
+      this.createAircraft();
+
+    } else {
+
+      this.updateAircraft();
+    }
   }
 
   createAircraft(): void {
 
     this.formErrorMessage = '';
 
-    const tailNumber =
-      this.newAircraft.tailNumber.trim();
+    const aircraftToSave =
+      this.buildAircraftRequest();
 
-    const aircraftType =
-      this.newAircraft.aircraftType.trim();
-
-    const location =
-      this.newAircraft.location.trim();
-
-    if (
-      tailNumber.length === 0 ||
-      aircraftType.length === 0 ||
-      location.length === 0
-    ) {
-
-      this.formErrorMessage =
-        'Tail number, aircraft type, and location are required.';
-
+    if (!aircraftToSave) {
       return;
     }
-
-    const aircraftToCreate: AircraftRequest = {
-      tailNumber,
-      aircraftType,
-      status: this.newAircraft.status,
-      location,
-      notes: this.newAircraft.notes.trim()
-    };
 
     this.saving = true;
 
     this.aircraftService
-      .createAircraft(aircraftToCreate)
+      .createAircraft(aircraftToSave)
       .subscribe({
 
         next: () => {
 
-          this.saving = false;
-
-          this.showAddAircraftForm = false;
-
-          this.resetAircraftForm();
-
-          this.changeDetectorRef.markForCheck();
-
-          this.loadAircraft();
+          this.finishSave();
         },
 
         error: (error) => {
@@ -198,6 +212,121 @@ export class AircraftComponent implements OnInit {
           this.changeDetectorRef.markForCheck();
         }
       });
+  }
+
+  updateAircraft(): void {
+
+    this.formErrorMessage = '';
+
+    if (
+      this.editingAircraftId === null
+    ) {
+      return;
+    }
+
+    const aircraftToSave =
+      this.buildAircraftRequest();
+
+    if (!aircraftToSave) {
+      return;
+    }
+
+    const aircraftId =
+      this.editingAircraftId;
+
+    this.saving = true;
+
+    this.aircraftService
+      .updateAircraft(
+        aircraftId,
+        aircraftToSave
+      )
+      .subscribe({
+
+        next: () => {
+
+          this.finishSave();
+        },
+
+        error: (error) => {
+
+          console.error(
+            'Error updating aircraft:',
+            error
+          );
+
+          this.saving = false;
+
+          if (error.status === 409) {
+
+            this.formErrorMessage =
+              error.error?.message ??
+              'An aircraft with that tail number already exists.';
+
+          } else if (error.status === 404) {
+
+            this.formErrorMessage =
+              'The aircraft could not be found.';
+
+          } else {
+
+            this.formErrorMessage =
+              'Unable to update aircraft. Please try again.';
+          }
+
+          this.changeDetectorRef.markForCheck();
+        }
+      });
+  }
+
+  buildAircraftRequest():
+    AircraftRequest | null {
+
+    const tailNumber =
+      this.newAircraft.tailNumber.trim();
+
+    const aircraftType =
+      this.newAircraft.aircraftType.trim();
+
+    const location =
+      this.newAircraft.location.trim();
+
+    if (
+      tailNumber.length === 0 ||
+      aircraftType.length === 0 ||
+      location.length === 0
+    ) {
+
+      this.formErrorMessage =
+        'Tail number, aircraft type, and location are required.';
+
+      return null;
+    }
+
+    return {
+      tailNumber,
+      aircraftType,
+      status: this.newAircraft.status,
+      location,
+      notes: this.newAircraft.notes.trim()
+    };
+  }
+
+  finishSave(): void {
+
+    this.saving = false;
+
+    this.showAddAircraftForm = false;
+
+    this.editingAircraftId = null;
+
+    this.formErrorMessage = '';
+
+    this.resetAircraftForm();
+
+    this.changeDetectorRef.markForCheck();
+
+    this.loadAircraft();
   }
 
   resetAircraftForm(): void {

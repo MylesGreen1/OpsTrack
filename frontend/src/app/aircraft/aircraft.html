@@ -386,9 +386,15 @@
                   </td>
 
                   <td>
-                  <span class="action-placeholder">
-                    —
-                  </span>
+
+                    <button
+                      class="edit-button"
+                      type="button"
+                      (click)="openEditAircraftForm(record)"
+                    >
+                      Edit
+                    </button>
+
                   </td>
 
                 </tr>
@@ -433,7 +439,13 @@
             </p>
 
             <h2>
-              Add Aircraft
+
+              @if (editingAircraftId === null) {
+                Add Aircraft
+              } @else {
+                Edit Aircraft
+              }
+
             </h2>
 
           </div>
@@ -453,7 +465,7 @@
 
         <form
           class="aircraft-form"
-          (ngSubmit)="createAircraft()"
+          (ngSubmit)="saveAircraft()"
         >
 
           <div class="form-grid">
@@ -583,9 +595,21 @@
             >
 
               @if (saving) {
-                Saving Aircraft...
+
+                @if (editingAircraftId === null) {
+                  Adding Aircraft...
+                } @else {
+                  Saving Changes...
+                }
+
               } @else {
-                Add Aircraft
+
+                @if (editingAircraftId === null) {
+                  Add Aircraft
+                } @else {
+                  Save Changes
+                }
+
               }
 
             </button>
