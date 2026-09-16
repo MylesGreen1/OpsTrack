@@ -15,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import com.opstrack.aircraft.Aircraft;
 
 @ExtendWith(MockitoExtension.class)
 public class MaintenanceTaskServiceTest {
@@ -83,6 +84,73 @@ public class MaintenanceTaskServiceTest {
 
         verify(maintenanceTaskRepository)
                 .findByAircraftId(aircraftId);
+    }
+
+    @Test
+    void shouldUpdateMaintenanceTask() {
+        Long taskId = 1L;
+
+        Aircraft originalAircraft = new Aircraft();
+        Aircraft updatedAircraft = new Aircraft();
+
+        MaintenanceTask existingTask = new MaintenanceTask();
+        existingTask.setTitle("Old task");
+        existingTask.setDescription("Old description");
+        existingTask.setPriority(MaintenancePriority.LOW);
+        existingTask.setStatus(MaintenanceStatus.OPEN);
+        existingTask.setAircraft(originalAircraft);
+
+        MaintenanceTask updatedTask = new MaintenanceTask();
+        updatedTask.setTitle("Hydraulic system inspection");
+        updatedTask.setDescription(
+                "Inspect hydraulic lines and connections."
+        );
+        updatedTask.setPriority(MaintenancePriority.HIGH);
+        updatedTask.setStatus(MaintenanceStatus.IN_PROGRESS);
+        updatedTask.setAircraft(updatedAircraft);
+
+        when(maintenanceTaskRepository.findById(taskId))
+                .thenReturn(Optional.of(existingTask));
+
+        when(maintenanceTaskRepository.save(existingTask))
+                .thenReturn(existingTask);
+
+        MaintenanceTask result =
+                maintenanceTaskService.updateTask(
+                        taskId,
+                        updatedTask
+                );
+
+        assertEquals(
+                "Hydraulic system inspection",
+                result.getTitle()
+        );
+
+        assertEquals(
+                "Inspect hydraulic lines and connections.",
+                result.getDescription()
+        );
+
+        assertEquals(
+                MaintenancePriority.HIGH,
+                result.getPriority()
+        );
+
+        assertEquals(
+                MaintenanceStatus.IN_PROGRESS,
+                result.getStatus()
+        );
+
+        assertSame(
+                updatedAircraft,
+                result.getAircraft()
+        );
+
+        verify(maintenanceTaskRepository)
+                .findById(taskId);
+
+        verify(maintenanceTaskRepository)
+                .save(existingTask);
     }
 
     @Test

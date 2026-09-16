@@ -78,6 +78,17 @@ export class MaintenanceTaskService {
     );
   }
 
+  updateTask(
+    taskId: number,
+    task: MaintenanceTaskRequest
+  ): Observable<MaintenanceTask> {
+
+    return this.http.put<MaintenanceTask>(
+      `${this.apiUrl}/${taskId}`,
+      task
+    );
+  }
+
   updateTaskStatus(
     taskId: number,
     status: MaintenanceStatus

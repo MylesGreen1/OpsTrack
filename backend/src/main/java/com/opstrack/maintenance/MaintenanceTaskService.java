@@ -32,6 +32,25 @@ public class MaintenanceTaskService {
         return maintenanceTaskRepository.findByAircraftId(aircraftId);
     }
 
+    public MaintenanceTask updateTask(
+            Long taskId,
+            MaintenanceTask updatedTask
+    ) {
+        MaintenanceTask existingTask =
+                maintenanceTaskRepository.findById(taskId)
+                        .orElseThrow(() -> new IllegalArgumentException(
+                                "Maintenance task not found with id: " + taskId
+                        ));
+
+        existingTask.setTitle(updatedTask.getTitle());
+        existingTask.setDescription(updatedTask.getDescription());
+        existingTask.setPriority(updatedTask.getPriority());
+        existingTask.setStatus(updatedTask.getStatus());
+        existingTask.setAircraft(updatedTask.getAircraft());
+
+        return maintenanceTaskRepository.save(existingTask);
+    }
+
     public MaintenanceTask updateTaskStatus(
             Long taskId,
             MaintenanceStatus status

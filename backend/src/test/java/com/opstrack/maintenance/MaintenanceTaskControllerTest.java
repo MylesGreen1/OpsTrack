@@ -17,8 +17,10 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 
 @WebMvcTest(MaintenanceTaskController.class)
 @WithMockUser(roles = "SUPERVISOR")
@@ -127,6 +129,89 @@ public class MaintenanceTaskControllerTest {
                 .andExpect(
                         jsonPath("$.status")
                                 .value("OPEN")
+                );
+    }
+
+    @Test
+    void shouldUpdateMaintenanceTask() throws Exception {
+        Long taskId = 1L;
+
+        MaintenanceTask requestTask =
+                new MaintenanceTask();
+
+        requestTask.setTitle(
+                "Updated hydraulic inspection"
+        );
+
+        requestTask.setDescription(
+                "Inspect hydraulic lines and connections."
+        );
+
+        requestTask.setPriority(
+                MaintenancePriority.HIGH
+        );
+
+        requestTask.setStatus(
+                MaintenanceStatus.IN_PROGRESS
+        );
+
+        MaintenanceTask updatedTask =
+                new MaintenanceTask();
+
+        updatedTask.setTitle(
+                "Updated hydraulic inspection"
+        );
+
+        updatedTask.setDescription(
+                "Inspect hydraulic lines and connections."
+        );
+
+        updatedTask.setPriority(
+                MaintenancePriority.HIGH
+        );
+
+        updatedTask.setStatus(
+                MaintenanceStatus.IN_PROGRESS
+        );
+
+        when(
+                maintenanceTaskService.updateTask(
+                        org.mockito.ArgumentMatchers.eq(taskId),
+                        any(MaintenanceTask.class)
+                )
+        ).thenReturn(updatedTask);
+
+        mockMvc.perform(
+                        put("/api/maintenance-tasks/1")
+                                .contentType(
+                                        MediaType.APPLICATION_JSON
+                                )
+                                .content(
+                                        objectMapper.writeValueAsString(
+                                                requestTask
+                                        )
+                                )
+                )
+                .andExpect(status().isOk())
+                .andExpect(
+                        jsonPath("$.title")
+                                .value(
+                                        "Updated hydraulic inspection"
+                                )
+                )
+                .andExpect(
+                        jsonPath("$.description")
+                                .value(
+                                        "Inspect hydraulic lines and connections."
+                                )
+                )
+                .andExpect(
+                        jsonPath("$.priority")
+                                .value("HIGH")
+                )
+                .andExpect(
+                        jsonPath("$.status")
+                                .value("IN_PROGRESS")
                 );
     }
 

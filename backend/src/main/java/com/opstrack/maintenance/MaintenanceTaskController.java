@@ -24,6 +24,17 @@ public class MaintenanceTaskController {
         return maintenanceTaskService.createTask(task);
     }
 
+    @PutMapping("/{taskId}")
+    public MaintenanceTask updateTask(
+            @PathVariable Long taskId,
+            @RequestBody MaintenanceTask task
+    ) {
+        return maintenanceTaskService.updateTask(
+                taskId,
+                task
+        );
+    }
+
     @GetMapping("/aircraft/{aircraftId}")
     public List<MaintenanceTask> getTasksByAircraftId(@PathVariable Long aircraftId) {
         return maintenanceTaskService.getTasksByAircraftId(aircraftId);

@@ -1,0 +1,504 @@
+<div class="maintenance-page">
+
+  <header class="app-header">
+    <div class="header-content">
+
+      <div>
+        <h1>OpsTrack</h1>
+        <p>Maintenance Operations Management</p>
+      </div>
+
+      <a
+        routerLink="/"
+        class="dashboard-link"
+      >
+        Dashboard
+      </a>
+
+    </div>
+  </header>
+
+  <main class="maintenance-container">
+
+    <section class="page-heading">
+
+      <div>
+        <p class="section-label">
+          MAINTENANCE OPERATIONS
+        </p>
+
+        <h2>Maintenance Tasks</h2>
+
+        <p class="section-description">
+          Track aircraft maintenance actions,
+          assignments, priorities, and task status.
+        </p>
+      </div>
+
+      <button
+        class="add-task-button"
+        type="button"
+        (click)="openAddTaskForm()"
+      >
+        + Add Maintenance Task
+      </button>
+
+    </section>
+
+
+    <!-- SUMMARY CARDS -->
+
+    <section class="summary-grid">
+
+      <div class="summary-card">
+        <span>Total Tasks</span>
+        <strong>{{ totalTasks }}</strong>
+      </div>
+
+      <div class="summary-card">
+        <span>Open</span>
+        <strong>{{ openTasks }}</strong>
+      </div>
+
+      <div class="summary-card">
+        <span>In Progress</span>
+        <strong>{{ inProgressTasks }}</strong>
+      </div>
+
+      <div class="summary-card">
+        <span>Completed</span>
+        <strong>{{ completedTasks }}</strong>
+      </div>
+
+    </section>
+
+
+    <!-- MAINTENANCE RECORDS -->
+
+    <section class="task-section">
+
+      <div class="section-header">
+
+        <div>
+          <p class="section-label">
+            TASK RECORDS
+          </p>
+
+          <h3>Maintenance Records</h3>
+        </div>
+
+      </div>
+
+
+      @if (loading) {
+
+        <div class="message-state">
+          Loading maintenance tasks...
+        </div>
+
+      } @else if (errorMessage) {
+
+        <div class="message-state error-message">
+          {{ errorMessage }}
+        </div>
+
+      } @else if (maintenanceTasks.length === 0) {
+
+        <div class="empty-state">
+
+          <h3>No Maintenance Tasks</h3>
+
+          <p>
+            Maintenance tasks will appear here
+            after they are created.
+          </p>
+
+        </div>
+
+      } @else {
+
+        <div class="table-wrapper">
+
+          <table>
+
+            <thead>
+
+            <tr>
+              <th>Task</th>
+              <th>Aircraft</th>
+              <th>Priority</th>
+              <th>Status</th>
+              <th>Technician</th>
+              <th>Actions</th>
+            </tr>
+
+            </thead>
+
+            <tbody>
+
+              @for (
+                task of maintenanceTasks;
+                track task.id
+                ) {
+
+                <tr>
+
+                  <td>
+
+                    <div class="task-title">
+                      {{ task.title }}
+                    </div>
+
+                    <div class="task-description">
+                      {{ task.description || 'No description provided.' }}
+                    </div>
+
+                  </td>
+
+
+                  <td>
+                    {{ task.aircraft?.tailNumber || '—' }}
+                  </td>
+
+
+                  <td>
+                    {{ task.priority }}
+                  </td>
+
+
+                  <td>
+                    {{ task.status }}
+                  </td>
+
+
+                  <td>
+
+                    @if (task.technician) {
+
+                      {{ task.technician.firstName }}
+                      {{ task.technician.lastName }}
+
+                    } @else {
+
+                      Unassigned
+
+                    }
+
+                  </td>
+
+
+                  <td>
+
+                    <button
+                      class="edit-task-button"
+                      type="button"
+                      (click)="openEditTaskForm(task)"
+                    >
+                      Edit
+                    </button>
+
+                  </td>
+
+                </tr>
+
+              }
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      }
+
+    </section>
+
+  </main>
+
+
+  <footer class="app-footer">
+
+    <p>
+      OpsTrack Maintenance Operations Management System
+    </p>
+
+  </footer>
+
+
+  <!-- ADD / EDIT MAINTENANCE TASK MODAL -->
+
+  @if (showAddTaskForm) {
+
+    <div
+      class="modal-backdrop"
+      (click)="closeAddTaskForm()"
+    >
+
+      <div
+        class="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="task-form-title"
+        (click)="$event.stopPropagation()"
+      >
+
+        <div class="modal-header">
+
+          <div>
+
+            <p class="section-label">
+              MAINTENANCE RECORD
+            </p>
+
+            <h2 id="task-form-title">
+
+              @if (editingTaskId !== null) {
+                Edit Maintenance Task
+              } @else {
+                Add Maintenance Task
+              }
+
+            </h2>
+
+          </div>
+
+
+          <button
+            class="modal-close-button"
+            type="button"
+            aria-label="Close maintenance task form"
+            [disabled]="saving"
+            (click)="closeAddTaskForm()"
+          >
+            ×
+          </button>
+
+        </div>
+
+
+        <form
+          class="task-form"
+          (ngSubmit)="saveTask()"
+        >
+
+
+          <!-- AIRCRAFT -->
+
+          <div class="form-group">
+
+            <label for="task-aircraft">
+              Aircraft
+            </label>
+
+            <select
+              id="task-aircraft"
+              name="aircraft"
+              [(ngModel)]="selectedAircraftId"
+              required
+            >
+
+              <option
+                [ngValue]="null"
+                disabled
+              >
+                Select an aircraft
+              </option>
+
+              @for (
+                aircraftRecord of aircraft;
+                track aircraftRecord.id
+                ) {
+
+                <option
+                  [ngValue]="aircraftRecord.id"
+                >
+                  {{ aircraftRecord.tailNumber }}
+                  — {{ aircraftRecord.aircraftType }}
+                </option>
+
+              }
+
+            </select>
+
+
+            @if (aircraft.length === 0) {
+
+              <p class="field-help">
+                No aircraft records are available.
+                Create an aircraft before creating a maintenance task.
+              </p>
+
+            }
+
+          </div>
+
+
+          <!-- TASK TITLE -->
+
+          <div class="form-group">
+
+            <label for="task-title">
+              Task Title
+            </label>
+
+            <input
+              id="task-title"
+              name="title"
+              type="text"
+              maxlength="150"
+              placeholder="Example: Hydraulic system inspection"
+              [(ngModel)]="newTask.title"
+              required
+            >
+
+          </div>
+
+
+          <!-- DESCRIPTION -->
+
+          <div class="form-group">
+
+            <label for="task-description">
+              Description
+            </label>
+
+            <textarea
+              id="task-description"
+              name="description"
+              rows="4"
+              maxlength="1000"
+              placeholder="Describe the maintenance work that needs to be completed."
+              [(ngModel)]="newTask.description"
+            ></textarea>
+
+          </div>
+
+
+          <!-- PRIORITY / STATUS -->
+
+          <div class="form-row">
+
+            <div class="form-group">
+
+              <label for="task-priority">
+                Priority
+              </label>
+
+              <select
+                id="task-priority"
+                name="priority"
+                [(ngModel)]="newTask.priority"
+                required
+              >
+
+                <option value="LOW">
+                  Low
+                </option>
+
+                <option value="MEDIUM">
+                  Medium
+                </option>
+
+                <option value="HIGH">
+                  High
+                </option>
+
+              </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+              <label for="task-status">
+                Status
+              </label>
+
+              <select
+                id="task-status"
+                name="status"
+                [(ngModel)]="newTask.status"
+                required
+              >
+
+                <option value="OPEN">
+                  Open
+                </option>
+
+                <option value="IN_PROGRESS">
+                  In Progress
+                </option>
+
+                <option value="COMPLETED">
+                  Completed
+                </option>
+
+              </select>
+
+            </div>
+
+          </div>
+
+
+          <!-- FORM ERROR -->
+
+          @if (formErrorMessage) {
+
+            <div class="form-error">
+              {{ formErrorMessage }}
+            </div>
+
+          }
+
+
+          <!-- ACTION BUTTONS -->
+
+          <div class="modal-actions">
+
+            <button
+              class="cancel-button"
+              type="button"
+              [disabled]="saving"
+              (click)="closeAddTaskForm()"
+            >
+              Cancel
+            </button>
+
+
+            <button
+              class="save-button"
+              type="submit"
+              [disabled]="saving || aircraft.length === 0"
+            >
+
+              @if (saving) {
+
+                @if (editingTaskId !== null) {
+                  Saving...
+                } @else {
+                  Creating...
+                }
+
+              } @else {
+
+                @if (editingTaskId !== null) {
+                  Save Changes
+                } @else {
+                  Create Task
+                }
+
+              }
+
+            </button>
+
+          </div>
+
+        </form>
+
+      </div>
+
+    </div>
+
+  }
+
+</div>
