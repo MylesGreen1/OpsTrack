@@ -340,6 +340,51 @@ export class AircraftComponent implements OnInit {
     };
   }
 
+  deleteAircraft(
+    aircraft: Aircraft
+  ): void {
+
+    const confirmed =
+      window.confirm(
+        `Delete aircraft ${aircraft.tailNumber}? This action cannot be undone.`
+      );
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.aircraftService
+      .deleteAircraft(aircraft.id)
+      .subscribe({
+
+        next: () => {
+
+          this.aircraft =
+            this.aircraft.filter(
+              record =>
+                record.id !== aircraft.id
+            );
+
+          this.changeDetectorRef
+            .markForCheck();
+        },
+
+        error: (error) => {
+
+          console.error(
+            'Error deleting aircraft:',
+            error
+          );
+
+          this.errorMessage =
+            'Unable to delete aircraft. Please try again.';
+
+          this.changeDetectorRef
+            .markForCheck();
+        }
+      });
+  }
+
   logout(): void {
 
     this.authService.logout();

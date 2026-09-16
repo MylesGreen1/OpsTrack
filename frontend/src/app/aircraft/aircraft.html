@@ -386,15 +386,25 @@
                   </td>
 
                   <td>
+                    <div class="action-buttons">
 
-                    <button
-                      class="edit-button"
-                      type="button"
-                      (click)="openEditAircraftForm(record)"
-                    >
-                      Edit
-                    </button>
+                      <button
+                        class="edit-button"
+                        type="button"
+                        (click)="openEditAircraftForm(record)"
+                      >
+                        Edit
+                      </button>
 
+                      <button
+                        class="delete-button"
+                        type="button"
+                        (click)="deleteAircraft(record)"
+                      >
+                        Delete
+                      </button>
+
+                    </div>
                   </td>
 
                 </tr>
