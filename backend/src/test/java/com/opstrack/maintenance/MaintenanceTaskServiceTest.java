@@ -32,13 +32,35 @@ public class MaintenanceTaskServiceTest {
     void shouldCreateMaintenanceTask() {
         MaintenanceTask task = new MaintenanceTask();
 
-        when(maintenanceTaskRepository.save(task)).thenReturn(task);
+        when(maintenanceTaskRepository.save(task))
+                .thenReturn(task);
 
-        MaintenanceTask result = maintenanceTaskService.createTask(task);
+        MaintenanceTask result =
+                maintenanceTaskService.createTask(task);
 
         assertSame(task, result);
 
         verify(maintenanceTaskRepository).save(task);
+    }
+
+    @Test
+    void shouldGetAllMaintenanceTasks() {
+        MaintenanceTask task1 = new MaintenanceTask();
+        MaintenanceTask task2 = new MaintenanceTask();
+
+        List<MaintenanceTask> tasks =
+                List.of(task1, task2);
+
+        when(maintenanceTaskRepository.findAll())
+                .thenReturn(tasks);
+
+        List<MaintenanceTask> result =
+                maintenanceTaskService.getAllTasks();
+
+        assertEquals(2, result.size());
+        assertSame(tasks, result);
+
+        verify(maintenanceTaskRepository).findAll();
     }
 
     @Test
@@ -48,7 +70,8 @@ public class MaintenanceTaskServiceTest {
         MaintenanceTask task1 = new MaintenanceTask();
         MaintenanceTask task2 = new MaintenanceTask();
 
-        List<MaintenanceTask> tasks = List.of(task1, task2);
+        List<MaintenanceTask> tasks =
+                List.of(task1, task2);
 
         when(maintenanceTaskRepository.findByAircraftId(aircraftId))
                 .thenReturn(tasks);
@@ -58,7 +81,8 @@ public class MaintenanceTaskServiceTest {
 
         assertEquals(2, result.size());
 
-        verify(maintenanceTaskRepository).findByAircraftId(aircraftId);
+        verify(maintenanceTaskRepository)
+                .findByAircraftId(aircraftId);
     }
 
     @Test
@@ -80,7 +104,10 @@ public class MaintenanceTaskServiceTest {
                         MaintenanceStatus.IN_PROGRESS
                 );
 
-        assertEquals(MaintenanceStatus.IN_PROGRESS, result.getStatus());
+        assertEquals(
+                MaintenanceStatus.IN_PROGRESS,
+                result.getStatus()
+        );
 
         verify(maintenanceTaskRepository).findById(taskId);
         verify(maintenanceTaskRepository).save(task);
@@ -92,6 +119,7 @@ public class MaintenanceTaskServiceTest {
         Long technicianId = 2L;
 
         MaintenanceTask task = new MaintenanceTask();
+
         Technician technician = new Technician(
                 "Alex",
                 "Carter",
@@ -115,7 +143,10 @@ public class MaintenanceTaskServiceTest {
                         technicianId
                 );
 
-        assertSame(technician, result.getTechnician());
+        assertSame(
+                technician,
+                result.getTechnician()
+        );
 
         verify(maintenanceTaskRepository).findById(taskId);
         verify(technicianRepository).findById(technicianId);

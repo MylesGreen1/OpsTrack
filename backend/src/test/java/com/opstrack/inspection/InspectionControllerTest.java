@@ -6,9 +6,9 @@ import com.opstrack.technician.Technician;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.security.test.context.support.WithMockUser;
 
 import java.util.List;
 
@@ -27,6 +27,51 @@ public class InspectionControllerTest {
 
     @MockitoBean
     private InspectionService inspectionService;
+
+    @Test
+    void shouldGetAllInspections() throws Exception {
+
+        Inspection inspection1 = new Inspection();
+        inspection1.setStatus(InspectionStatus.REJECTED);
+        inspection1.setComments("Loose connector found.");
+
+        Inspection inspection2 = new Inspection();
+        inspection2.setStatus(InspectionStatus.APPROVED);
+        inspection2.setComments("Inspection passed.");
+
+        when(inspectionService.getAllInspections())
+                .thenReturn(
+                        List.of(
+                                inspection1,
+                                inspection2
+                        )
+                );
+
+        mockMvc.perform(
+                        get("/api/inspections")
+                )
+                .andExpect(status().isOk())
+                .andExpect(
+                        jsonPath("$.length()")
+                                .value(2)
+                )
+                .andExpect(
+                        jsonPath("$[0].status")
+                                .value("REJECTED")
+                )
+                .andExpect(
+                        jsonPath("$[0].comments")
+                                .value("Loose connector found.")
+                )
+                .andExpect(
+                        jsonPath("$[1].status")
+                                .value("APPROVED")
+                )
+                .andExpect(
+                        jsonPath("$[1].comments")
+                                .value("Inspection passed.")
+                );
+    }
 
     @Test
     void shouldCreateApprovedInspection() throws Exception {
@@ -70,7 +115,10 @@ public class InspectionControllerTest {
                                         "inspectorId",
                                         inspectorId.toString()
                                 )
-                                .param("status", "APPROVED")
+                                .param(
+                                        "status",
+                                        "APPROVED"
+                                )
                                 .param(
                                         "comments",
                                         "Inspection passed."
@@ -133,7 +181,10 @@ public class InspectionControllerTest {
                                         "inspectorId",
                                         inspectorId.toString()
                                 )
-                                .param("status", "REJECTED")
+                                .param(
+                                        "status",
+                                        "REJECTED"
+                                )
                                 .param(
                                         "comments",
                                         "Loose connector found."
@@ -151,7 +202,9 @@ public class InspectionControllerTest {
     }
 
     @Test
-    void shouldGetInspectionsByMaintenanceTaskId() throws Exception {
+    void shouldGetInspectionsByMaintenanceTaskId()
+            throws Exception {
+
         Long maintenanceTaskId = 1L;
 
         Inspection inspection1 = new Inspection();
@@ -161,10 +214,16 @@ public class InspectionControllerTest {
         inspection2.setStatus(InspectionStatus.APPROVED);
 
         when(
-                inspectionService.getInspectionsByMaintenanceTaskId(
-                        maintenanceTaskId
+                inspectionService
+                        .getInspectionsByMaintenanceTaskId(
+                                maintenanceTaskId
+                        )
+        ).thenReturn(
+                List.of(
+                        inspection1,
+                        inspection2
                 )
-        ).thenReturn(List.of(inspection1, inspection2));
+        );
 
         mockMvc.perform(
                         get(

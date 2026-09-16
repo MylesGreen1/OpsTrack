@@ -14,6 +14,11 @@ public class InspectionController {
         this.inspectionService = inspectionService;
     }
 
+    @GetMapping
+    public List<Inspection> getAllInspections() {
+        return inspectionService.getAllInspections();
+    }
+
     @PostMapping
     public Inspection createInspection(
             @RequestParam Long maintenanceTaskId,

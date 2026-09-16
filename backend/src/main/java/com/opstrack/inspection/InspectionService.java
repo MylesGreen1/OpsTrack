@@ -66,6 +66,10 @@ public class InspectionService {
         return inspectionRepository.save(inspection);
     }
 
+    public List<Inspection> getAllInspections() {
+        return inspectionRepository.findAll();
+    }
+
     public List<Inspection> getInspectionsByMaintenanceTaskId(
             Long maintenanceTaskId
     ) {

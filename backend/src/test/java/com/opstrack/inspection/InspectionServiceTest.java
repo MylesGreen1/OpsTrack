@@ -151,6 +151,26 @@ public class InspectionServiceTest {
     }
 
     @Test
+    void shouldGetAllInspections() {
+        Inspection inspection1 = new Inspection();
+        Inspection inspection2 = new Inspection();
+
+        List<Inspection> inspections =
+                List.of(inspection1, inspection2);
+
+        when(inspectionRepository.findAll())
+                .thenReturn(inspections);
+
+        List<Inspection> result =
+                inspectionService.getAllInspections();
+
+        assertEquals(2, result.size());
+        assertSame(inspections, result);
+
+        verify(inspectionRepository).findAll();
+    }
+
+    @Test
     void shouldGetInspectionsByMaintenanceTaskId() {
         Long maintenanceTaskId = 1L;
 

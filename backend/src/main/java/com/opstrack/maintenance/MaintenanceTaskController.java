@@ -14,6 +14,11 @@ public class MaintenanceTaskController {
         this.maintenanceTaskService = maintenanceTaskService;
     }
 
+    @GetMapping
+    public List<MaintenanceTask> getAllTasks() {
+        return maintenanceTaskService.getAllTasks();
+    }
+
     @PostMapping
     public MaintenanceTask createTask(@RequestBody MaintenanceTask task) {
         return maintenanceTaskService.createTask(task);

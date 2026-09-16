@@ -24,6 +24,10 @@ public class MaintenanceTaskService {
         return maintenanceTaskRepository.save(task);
     }
 
+    public List<MaintenanceTask> getAllTasks() {
+        return maintenanceTaskRepository.findAll();
+    }
+
     public List<MaintenanceTask> getTasksByAircraftId(Long aircraftId) {
         return maintenanceTaskRepository.findByAircraftId(aircraftId);
     }
