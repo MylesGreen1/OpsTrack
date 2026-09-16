@@ -1,0 +1,423 @@
+<div class="technician-page">
+
+  <header class="top-bar">
+    <div class="brand">
+      <h1>OpsTrack</h1>
+      <span>Technician Management</span>
+    </div>
+
+    <a
+      routerLink="/"
+      class="dashboard-link">
+      Dashboard
+    </a>
+  </header>
+
+
+  <main class="technician-main">
+
+    <section class="page-heading">
+
+      <div>
+        <p class="eyebrow">
+          PERSONNEL OPERATIONS
+        </p>
+
+        <h2>Technicians</h2>
+
+        <p class="page-description">
+          Manage maintenance personnel, specialties,
+          availability, and technician records.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        class="primary-button"
+        (click)="openAddTechnicianForm()">
+        + Add Technician
+      </button>
+
+    </section>
+
+
+    <!-- SUMMARY CARDS -->
+
+    <section class="summary-grid">
+
+      <article class="summary-card">
+        <span>Total Technicians</span>
+        <strong>{{ totalTechnicians }}</strong>
+      </article>
+
+      <article class="summary-card">
+        <span>Active</span>
+        <strong>{{ activeTechnicians }}</strong>
+      </article>
+
+      <article class="summary-card">
+        <span>Inactive</span>
+        <strong>{{ inactiveTechnicians }}</strong>
+      </article>
+
+    </section>
+
+
+    <!-- ERROR MESSAGE -->
+
+    @if (errorMessage) {
+
+      <div class="page-error">
+        {{ errorMessage }}
+      </div>
+
+    }
+
+
+    <!-- TECHNICIAN RECORDS -->
+
+    <section class="records-card">
+
+      <div class="records-header">
+
+        <div>
+          <p class="eyebrow">
+            PERSONNEL RECORDS
+          </p>
+
+          <h3>Technician Records</h3>
+        </div>
+
+      </div>
+
+
+      @if (loading) {
+
+        <div class="state-message">
+          Loading technicians...
+        </div>
+
+      } @else if (technicians.length === 0) {
+
+        <div class="state-message">
+          No technicians found.
+        </div>
+
+      } @else {
+
+        <div class="table-wrapper">
+
+          <table>
+
+            <thead>
+            <tr>
+              <th>TECHNICIAN</th>
+              <th>EMPLOYEE #</th>
+              <th>SPECIALTY</th>
+              <th>STATUS</th>
+              <th>ACTIONS</th>
+            </tr>
+            </thead>
+
+            <tbody>
+
+              @for (
+                technician of technicians;
+                track technician.id
+                ) {
+
+                <tr>
+
+                  <td>
+                    <div class="technician-name">
+                      {{ technician.firstName }}
+                      {{ technician.lastName }}
+                    </div>
+                  </td>
+
+                  <td>
+                    {{ technician.employeeNumber }}
+                  </td>
+
+                  <td>
+                    {{ technician.specialty }}
+                  </td>
+
+                  <td>
+
+                    <span
+                      class="status-badge"
+                      [class.active-status]="technician.active"
+                      [class.inactive-status]="!technician.active">
+
+                      {{
+                        technician.active
+                          ? 'Active'
+                          : 'Inactive'
+                      }}
+
+                    </span>
+
+                  </td>
+
+                  <td>
+
+                    <div class="action-buttons">
+
+                      <button
+                        type="button"
+                        class="edit-button"
+                        (click)="openEditTechnicianForm(technician)">
+                        Edit
+                      </button>
+
+                      <button
+                        type="button"
+                        class="status-button"
+                        (click)="updateActiveStatus(technician)">
+
+                        {{
+                          technician.active
+                            ? 'Deactivate'
+                            : 'Activate'
+                        }}
+
+                      </button>
+
+                      <button
+                        type="button"
+                        class="delete-button"
+                        [disabled]="
+                          deletingTechnicianId === technician.id
+                        "
+                        (click)="deleteTechnician(technician)">
+
+                        {{
+                          deletingTechnicianId === technician.id
+                            ? 'Deleting...'
+                            : 'Delete'
+                        }}
+
+                      </button>
+
+                    </div>
+
+                  </td>
+
+                </tr>
+
+              }
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      }
+
+    </section>
+
+  </main>
+
+
+  <!-- ADD / EDIT TECHNICIAN MODAL -->
+
+  @if (showTechnicianForm) {
+
+    <div
+      class="modal-backdrop"
+      (click)="closeTechnicianForm()">
+
+      <div
+        class="technician-modal"
+        (click)="$event.stopPropagation()">
+
+        <div class="modal-header">
+
+          <div>
+
+            <p class="eyebrow">
+              TECHNICIAN RECORD
+            </p>
+
+            <h2>
+              {{
+                editingTechnicianId !== null
+                  ? 'Edit Technician'
+                  : 'Add Technician'
+              }}
+            </h2>
+
+          </div>
+
+          <button
+            type="button"
+            class="close-button"
+            (click)="closeTechnicianForm()">
+            ×
+          </button>
+
+        </div>
+
+
+        <form
+          class="technician-form"
+          (ngSubmit)="saveTechnician()">
+
+          @if (formErrorMessage) {
+
+            <div class="form-error">
+              {{ formErrorMessage }}
+            </div>
+
+          }
+
+
+          <div class="form-row">
+
+            <div class="form-field">
+
+              <label for="firstName">
+                First Name
+              </label>
+
+              <input
+                id="firstName"
+                name="firstName"
+                type="text"
+                [(ngModel)]="technicianForm.firstName"
+                placeholder="Enter first name">
+
+            </div>
+
+
+            <div class="form-field">
+
+              <label for="lastName">
+                Last Name
+              </label>
+
+              <input
+                id="lastName"
+                name="lastName"
+                type="text"
+                [(ngModel)]="technicianForm.lastName"
+                placeholder="Enter last name">
+
+            </div>
+
+          </div>
+
+
+          <div class="form-row">
+
+            <div class="form-field">
+
+              <label for="employeeNumber">
+                Employee Number
+              </label>
+
+              <input
+                id="employeeNumber"
+                name="employeeNumber"
+                type="text"
+                [(ngModel)]="technicianForm.employeeNumber"
+                placeholder="Example: TECH-001">
+
+            </div>
+
+
+            <div class="form-field">
+
+              <label for="specialty">
+                Specialty
+              </label>
+
+              <input
+                id="specialty"
+                name="specialty"
+                type="text"
+                [(ngModel)]="technicianForm.specialty"
+                placeholder="Example: Avionics">
+
+            </div>
+
+          </div>
+
+
+          <div class="form-field">
+
+            <label for="active">
+              Status
+            </label>
+
+            <select
+              id="active"
+              name="active"
+              [(ngModel)]="technicianForm.active">
+
+              <option [ngValue]="true">
+                Active
+              </option>
+
+              <option [ngValue]="false">
+                Inactive
+              </option>
+
+            </select>
+
+          </div>
+
+
+          <div class="modal-actions">
+
+            <button
+              type="button"
+              class="cancel-button"
+              [disabled]="saving"
+              (click)="closeTechnicianForm()">
+              Cancel
+            </button>
+
+            <button
+              type="submit"
+              class="save-button"
+              [disabled]="saving">
+
+              @if (saving) {
+
+                {{
+                  editingTechnicianId !== null
+                    ? 'Saving...'
+                    : 'Creating...'
+                }}
+
+              } @else {
+
+                {{
+                  editingTechnicianId !== null
+                    ? 'Save Changes'
+                    : 'Create Technician'
+                }}
+
+              }
+
+            </button>
+
+          </div>
+
+        </form>
+
+      </div>
+
+    </div>
+
+  }
+
+
+  <footer>
+    OpsTrack Maintenance Operations Management System
+  </footer>
+
+</div>
