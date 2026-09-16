@@ -6,6 +6,7 @@ import { LoginComponent } from './login/login';
 import { RegisterComponent } from './register/register';
 import { Maintenance } from './maintenance/maintenance';
 import { TechnicianComponent } from './technician/technician';
+import { InspectionComponent } from './inspection/inspection';
 
 import { authGuard } from './auth/auth.guard';
 
@@ -36,6 +37,11 @@ export const routes: Routes = [
   {
     path: 'technicians',
     component: TechnicianComponent,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'inspections',
+    component: InspectionComponent,
     canActivate: [authGuard]
   },
   {

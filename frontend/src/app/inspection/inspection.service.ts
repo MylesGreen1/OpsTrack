@@ -19,6 +19,7 @@ export interface Inspection {
   id: number;
   status: InspectionStatus;
   comments: string;
+  inspectedAt: string;
   maintenanceTask: MaintenanceTask;
   inspector: Technician;
 }

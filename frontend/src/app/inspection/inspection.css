@@ -1,0 +1,656 @@
+/* =========================================================
+   OpsTrack - Inspection Management
+   ========================================================= */
+
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.inspection-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #f4f7fb;
+  color: #102348;
+}
+
+
+/* =========================================================
+   Top Navigation
+   ========================================================= */
+
+.top-bar {
+  min-height: 72px;
+  padding: 0 6%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  background: #ffffff;
+  border-bottom: 1px solid #d7e0ed;
+}
+
+.brand-section {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.brand {
+  color: #102348;
+  font-size: 24px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.brand:hover {
+  text-decoration: underline;
+}
+
+.section-name {
+  padding-left: 18px;
+  color: #65738b;
+  font-size: 14px;
+  border-left: 1px solid #d7e0ed;
+}
+
+.dashboard-button {
+  padding: 10px 18px;
+  border: 1px solid #102348;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #102348;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.dashboard-button:hover {
+  background: #102348;
+  color: #ffffff;
+}
+
+
+/* =========================================================
+   Main Page
+   ========================================================= */
+
+.inspection-main {
+  width: 88%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 42px 0 70px;
+  flex: 1;
+}
+
+
+/* =========================================================
+   Page Heading
+   ========================================================= */
+
+.page-heading {
+  margin-bottom: 34px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 30px;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: #2e5da8;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+}
+
+.page-heading h1 {
+  margin: 0;
+  color: #102348;
+  font-size: 34px;
+  line-height: 1.2;
+}
+
+.page-description {
+  max-width: 650px;
+  margin: 10px 0 0;
+  color: #65738b;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+
+/* =========================================================
+   Buttons
+   ========================================================= */
+
+.primary-button,
+.secondary-button,
+.close-button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.primary-button {
+  padding: 11px 18px;
+  border: 1px solid #102348;
+  border-radius: 6px;
+  background: #102348;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.1s ease;
+}
+
+.primary-button:hover:not(:disabled) {
+  background: #1d3c70;
+  border-color: #1d3c70;
+}
+
+.primary-button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.primary-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.secondary-button {
+  padding: 10px 18px;
+  border: 1px solid #c7d2e3;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #102348;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.secondary-button:hover:not(:disabled) {
+  background: #f1f5fa;
+}
+
+.secondary-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+
+/* =========================================================
+   Summary Cards
+   ========================================================= */
+
+.summary-grid {
+  margin-bottom: 36px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.summary-card {
+  min-height: 140px;
+  padding: 24px;
+  border: 1px solid #d7e0ed;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(16, 35, 72, 0.04);
+}
+
+.summary-card p {
+  margin: 0 0 14px;
+  color: #536681;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.summary-card strong {
+  color: #102348;
+  font-size: 30px;
+  line-height: 1;
+}
+
+
+/* =========================================================
+   Inspection Records
+   ========================================================= */
+
+.inspection-records {
+  overflow: hidden;
+  border: 1px solid #d7e0ed;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.records-header {
+  padding: 24px 26px 20px;
+  border-bottom: 1px solid #d7e0ed;
+}
+
+.records-header h2 {
+  margin: 0;
+  color: #102348;
+  font-size: 20px;
+}
+
+
+/* =========================================================
+   Table
+   ========================================================= */
+
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.inspection-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 900px;
+}
+
+.inspection-table th,
+.inspection-table td {
+  padding: 16px 20px;
+  text-align: left;
+  vertical-align: middle;
+  border-bottom: 1px solid #e1e7f0;
+}
+
+.inspection-table th {
+  background: #f8fafc;
+  color: #3c4f6c;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+.inspection-table td {
+  color: #263b5b;
+  font-size: 14px;
+}
+
+.inspection-table td strong {
+  color: #102348;
+}
+
+.inspection-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.inspection-table tbody tr:hover {
+  background: #f9fbfd;
+}
+
+.comments-cell {
+  max-width: 300px;
+  line-height: 1.5;
+  white-space: normal;
+  word-break: break-word;
+}
+
+
+/* =========================================================
+   Status Badges
+   ========================================================= */
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 82px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.status-badge.pending {
+  background: #fff6d8;
+  color: #775b00;
+}
+
+.status-badge.approved {
+  background: #e4f6ea;
+  color: #1e6b39;
+}
+
+.status-badge.rejected {
+  background: #fde9e9;
+  color: #a22b2b;
+}
+
+
+/* =========================================================
+   Loading / Error / Empty States
+   ========================================================= */
+
+.state-message {
+  padding: 48px 24px;
+  color: #65738b;
+  font-size: 14px;
+  text-align: center;
+}
+
+.error-message {
+  color: #a22b2b;
+}
+
+
+/* =========================================================
+   Footer
+   ========================================================= */
+
+.page-footer {
+  padding: 22px;
+  border-top: 1px solid #d7e0ed;
+  background: #eaf0f8;
+  color: #3f5878;
+  font-size: 13px;
+  text-align: center;
+}
+
+
+/* =========================================================
+   Modal Backdrop
+   ========================================================= */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 24px;
+
+  background: rgba(10, 24, 48, 0.55);
+}
+
+
+/* =========================================================
+   Inspection Modal
+   ========================================================= */
+
+.inspection-modal {
+  width: 100%;
+  max-width: 650px;
+  max-height: 90vh;
+
+  overflow-y: auto;
+
+  border: 1px solid #d7e0ed;
+  border-radius: 10px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 20px 50px rgba(10, 24, 48, 0.25);
+}
+
+.modal-header {
+  padding: 24px 26px;
+
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+
+  border-bottom: 1px solid #d7e0ed;
+}
+
+.modal-header h2 {
+  margin: 0;
+  color: #102348;
+  font-size: 24px;
+}
+
+.close-button {
+  width: 36px;
+  height: 36px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border: none;
+  border-radius: 6px;
+
+  background: transparent;
+  color: #65738b;
+
+  font-size: 28px;
+  line-height: 1;
+}
+
+.close-button:hover {
+  background: #f1f5fa;
+  color: #102348;
+}
+
+
+/* =========================================================
+   Inspection Form
+   ========================================================= */
+
+.inspection-form {
+  padding: 26px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  color: #263b5b;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+
+  padding: 11px 12px;
+
+  border: 1px solid #c7d2e3;
+  border-radius: 6px;
+
+  background: #ffffff;
+  color: #102348;
+
+  font-family: inherit;
+  font-size: 14px;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.form-group select {
+  cursor: pointer;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 110px;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: #2e5da8;
+  box-shadow: 0 0 0 3px rgba(46, 93, 168, 0.12);
+}
+
+.form-group textarea::placeholder {
+  color: #8b98aa;
+}
+
+
+/* =========================================================
+   Form Error
+   ========================================================= */
+
+.form-error {
+  margin-bottom: 20px;
+  padding: 12px 14px;
+
+  border: 1px solid #efb6b6;
+  border-radius: 6px;
+
+  background: #fff0f0;
+  color: #9c2525;
+
+  font-size: 13px;
+}
+
+
+/* =========================================================
+   Inspection Workflow Note
+   ========================================================= */
+
+.inspection-note {
+  margin-top: 6px;
+  margin-bottom: 24px;
+
+  padding: 14px 16px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+
+  border: 1px solid #cfdced;
+  border-radius: 6px;
+
+  background: #f4f8fd;
+
+  color: #536681;
+
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.inspection-note strong {
+  color: #102348;
+}
+
+
+/* =========================================================
+   Modal Actions
+   ========================================================= */
+
+.modal-actions {
+  padding-top: 20px;
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+
+  border-top: 1px solid #e1e7f0;
+}
+
+
+/* =========================================================
+   Responsive - Tablet
+   ========================================================= */
+
+@media (max-width: 1000px) {
+
+  .summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .inspection-main {
+    width: 92%;
+  }
+}
+
+
+/* =========================================================
+   Responsive - Mobile
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+  .top-bar {
+    padding: 16px 5%;
+    align-items: flex-start;
+  }
+
+  .brand-section {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .section-name {
+    padding-left: 0;
+    border-left: none;
+  }
+
+  .inspection-main {
+    width: 92%;
+    padding-top: 28px;
+  }
+
+  .page-heading {
+    flex-direction: column;
+  }
+
+  .page-heading .primary-button {
+    width: 100%;
+  }
+
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .summary-card {
+    min-height: 115px;
+  }
+
+  .modal-backdrop {
+    padding: 12px;
+  }
+
+  .inspection-modal {
+    max-height: 95vh;
+  }
+
+  .modal-header,
+  .inspection-form {
+    padding: 20px;
+  }
+
+  .modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .modal-actions button {
+    width: 100%;
+  }
+}
