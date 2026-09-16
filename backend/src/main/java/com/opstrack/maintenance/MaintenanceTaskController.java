@@ -55,4 +55,11 @@ public class MaintenanceTaskController {
     ) {
         return maintenanceTaskService.assignTechnician(taskId, technicianId);
     }
+
+    @DeleteMapping("/{taskId}")
+    public void deleteTask(
+            @PathVariable Long taskId
+    ) {
+        maintenanceTaskService.deleteTask(taskId);
+    }
 }

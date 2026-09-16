@@ -83,4 +83,15 @@ public class MaintenanceTaskService {
 
         return maintenanceTaskRepository.save(task);
     }
+
+    public void deleteTask(Long taskId) {
+
+        MaintenanceTask task =
+                maintenanceTaskRepository.findById(taskId)
+                        .orElseThrow(() -> new IllegalArgumentException(
+                                "Maintenance task not found with id: " + taskId
+                        ));
+
+        maintenanceTaskRepository.delete(task);
+    }
 }

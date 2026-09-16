@@ -189,13 +189,33 @@
 
                   <td>
 
-                    <button
-                      class="edit-task-button"
-                      type="button"
-                      (click)="openEditTaskForm(task)"
-                    >
-                      Edit
-                    </button>
+                    <div class="task-actions">
+
+                      <button
+                        class="edit-task-button"
+                        type="button"
+                        [disabled]="deletingTaskId === task.id"
+                        (click)="openEditTaskForm(task)"
+                      >
+                        Edit
+                      </button>
+
+                      <button
+                        class="delete-task-button"
+                        type="button"
+                        [disabled]="deletingTaskId === task.id"
+                        (click)="deleteTask(task)"
+                      >
+
+                        @if (deletingTaskId === task.id) {
+                          Deleting...
+                        } @else {
+                          Delete
+                        }
+
+                      </button>
+
+                    </div>
 
                   </td>
 

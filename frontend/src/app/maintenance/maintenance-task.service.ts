@@ -89,6 +89,15 @@ export class MaintenanceTaskService {
     );
   }
 
+  deleteTask(
+    taskId: number
+  ): Observable<void> {
+
+    return this.http.delete<void>(
+      `${this.apiUrl}/${taskId}`
+    );
+  }
+
   updateTaskStatus(
     taskId: number,
     status: MaintenanceStatus

@@ -13,8 +13,10 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.never;
 import com.opstrack.aircraft.Aircraft;
 
 @ExtendWith(MockitoExtension.class)
@@ -220,4 +222,55 @@ public class MaintenanceTaskServiceTest {
         verify(technicianRepository).findById(technicianId);
         verify(maintenanceTaskRepository).save(task);
     }
+
+    @Test
+    void shouldDeleteMaintenanceTask() {
+
+        Long taskId = 1L;
+
+        MaintenanceTask task =
+                new MaintenanceTask();
+
+        when(maintenanceTaskRepository.findById(taskId))
+                .thenReturn(Optional.of(task));
+
+        maintenanceTaskService.deleteTask(taskId);
+
+        verify(maintenanceTaskRepository)
+                .findById(taskId);
+
+        verify(maintenanceTaskRepository)
+                .delete(task);
+    }
+
+    @Test
+    void shouldThrowExceptionWhenDeletingMissingTask() {
+
+        Long taskId = 99L;
+
+        when(maintenanceTaskRepository.findById(taskId))
+                .thenReturn(Optional.empty());
+
+        IllegalArgumentException exception =
+                assertThrows(
+                        IllegalArgumentException.class,
+                        () -> maintenanceTaskService
+                                .deleteTask(taskId)
+                );
+
+        assertEquals(
+                "Maintenance task not found with id: " + taskId,
+                exception.getMessage()
+        );
+
+        verify(maintenanceTaskRepository)
+                .findById(taskId);
+
+        verify(maintenanceTaskRepository, never())
+                .delete(
+                        org.mockito.ArgumentMatchers
+                                .any(MaintenanceTask.class)
+                );
+    }
+
 }

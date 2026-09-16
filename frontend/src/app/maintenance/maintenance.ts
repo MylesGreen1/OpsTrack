@@ -39,6 +39,8 @@ export class Maintenance implements OnInit {
 
   saving = false;
 
+  deletingTaskId: number | null = null;
+
   errorMessage = '';
 
   formErrorMessage = '';
@@ -350,6 +352,62 @@ export class Maintenance implements OnInit {
             'Unable to update maintenance task. Please try again.';
 
           this.saving = false;
+
+          this.changeDetectorRef
+            .markForCheck();
+        }
+      });
+  }
+
+
+  // =========================
+  // DELETE TASK
+  // =========================
+
+  deleteTask(
+    task: MaintenanceTask
+  ): void {
+
+    const confirmed = window.confirm(
+      `Delete maintenance task "${task.title}"?`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.deletingTaskId = task.id;
+    this.errorMessage = '';
+
+    this.maintenanceTaskService
+      .deleteTask(task.id)
+      .subscribe({
+
+        next: () => {
+
+          this.maintenanceTasks =
+            this.maintenanceTasks.filter(
+              maintenanceTask =>
+                maintenanceTask.id !== task.id
+            );
+
+          this.deletingTaskId = null;
+
+          this.changeDetectorRef
+            .markForCheck();
+        },
+
+        error: (error) => {
+
+          console.error(
+            'Error deleting maintenance task:',
+            error
+          );
+
+          this.errorMessage =
+            'Unable to delete maintenance task. Please try again.';
+
+          this.deletingTaskId = null;
 
           this.changeDetectorRef
             .markForCheck();
