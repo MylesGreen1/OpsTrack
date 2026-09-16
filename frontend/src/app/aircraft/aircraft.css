@@ -330,6 +330,70 @@
 }
 
 /* =========================
+   TABLE ACTIONS
+   ========================= */
+
+.action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.edit-button,
+.delete-button {
+  border-radius: 6px;
+  padding: 7px 12px;
+
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.edit-button {
+  border: 1px solid #91a9c1;
+
+  background: #f8fafc;
+  color: #203247;
+}
+
+.edit-button:hover {
+  background: #203247;
+  border-color: #203247;
+  color: white;
+
+  transform: translateY(-1px);
+}
+
+.delete-button {
+  border: 1px solid #f0b4ae;
+
+  background: #fff7f6;
+  color: #b42318;
+}
+
+.delete-button:hover {
+  background: #b42318;
+  border-color: #b42318;
+  color: white;
+
+  transform: translateY(-1px);
+}
+
+.edit-button:focus-visible,
+.delete-button:focus-visible {
+  outline: 3px solid rgba(82, 119, 156, 0.25);
+  outline-offset: 2px;
+}
+
+/* =========================
    STATUS BADGES
    ========================= */
 
