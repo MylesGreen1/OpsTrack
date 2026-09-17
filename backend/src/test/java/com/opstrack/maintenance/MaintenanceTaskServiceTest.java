@@ -1,5 +1,6 @@
 package com.opstrack.maintenance;
 
+import com.opstrack.aircraft.Aircraft;
 import com.opstrack.technician.Technician;
 import com.opstrack.technician.TechnicianRepository;
 import org.junit.jupiter.api.Test;
@@ -11,13 +12,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.never;
-import com.opstrack.aircraft.Aircraft;
 
 @ExtendWith(MockitoExtension.class)
 public class MaintenanceTaskServiceTest {
@@ -33,89 +31,240 @@ public class MaintenanceTaskServiceTest {
 
     @Test
     void shouldCreateMaintenanceTask() {
-        MaintenanceTask task = new MaintenanceTask();
 
-        when(maintenanceTaskRepository.save(task))
-                .thenReturn(task);
+        MaintenanceTask task =
+                new MaintenanceTask();
+
+        when(
+                maintenanceTaskRepository.save(task)
+        ).thenReturn(
+                task
+        );
 
         MaintenanceTask result =
-                maintenanceTaskService.createTask(task);
+                maintenanceTaskService.createTask(
+                        task
+                );
 
-        assertSame(task, result);
+        assertSame(
+                task,
+                result
+        );
 
-        verify(maintenanceTaskRepository).save(task);
+        verify(
+                maintenanceTaskRepository
+        ).save(
+                task
+        );
     }
 
     @Test
     void shouldGetAllMaintenanceTasks() {
-        MaintenanceTask task1 = new MaintenanceTask();
-        MaintenanceTask task2 = new MaintenanceTask();
+
+        MaintenanceTask task1 =
+                new MaintenanceTask();
+
+        MaintenanceTask task2 =
+                new MaintenanceTask();
 
         List<MaintenanceTask> tasks =
-                List.of(task1, task2);
+                List.of(
+                        task1,
+                        task2
+                );
 
-        when(maintenanceTaskRepository.findAll())
-                .thenReturn(tasks);
+        when(
+                maintenanceTaskRepository.findAll()
+        ).thenReturn(
+                tasks
+        );
 
         List<MaintenanceTask> result =
                 maintenanceTaskService.getAllTasks();
 
-        assertEquals(2, result.size());
-        assertSame(tasks, result);
+        assertEquals(
+                2,
+                result.size()
+        );
 
-        verify(maintenanceTaskRepository).findAll();
+        assertSame(
+                tasks,
+                result
+        );
+
+        verify(
+                maintenanceTaskRepository
+        ).findAll();
     }
 
     @Test
     void shouldGetTasksByAircraftId() {
+
         Long aircraftId = 1L;
 
-        MaintenanceTask task1 = new MaintenanceTask();
-        MaintenanceTask task2 = new MaintenanceTask();
+        MaintenanceTask task1 =
+                new MaintenanceTask();
+
+        MaintenanceTask task2 =
+                new MaintenanceTask();
 
         List<MaintenanceTask> tasks =
-                List.of(task1, task2);
+                List.of(
+                        task1,
+                        task2
+                );
 
-        when(maintenanceTaskRepository.findByAircraftId(aircraftId))
-                .thenReturn(tasks);
+        when(
+                maintenanceTaskRepository
+                        .findByAircraftId(
+                                aircraftId
+                        )
+        ).thenReturn(
+                tasks
+        );
 
         List<MaintenanceTask> result =
-                maintenanceTaskService.getTasksByAircraftId(aircraftId);
+                maintenanceTaskService
+                        .getTasksByAircraftId(
+                                aircraftId
+                        );
 
-        assertEquals(2, result.size());
+        assertEquals(
+                2,
+                result.size()
+        );
 
-        verify(maintenanceTaskRepository)
-                .findByAircraftId(aircraftId);
+        verify(
+                maintenanceTaskRepository
+        ).findByAircraftId(
+                aircraftId
+        );
+    }
+
+    @Test
+    void shouldGetTasksByTechnicianId() {
+
+        Long technicianId = 2L;
+
+        MaintenanceTask task1 =
+                new MaintenanceTask();
+
+        MaintenanceTask task2 =
+                new MaintenanceTask();
+
+        List<MaintenanceTask> tasks =
+                List.of(
+                        task1,
+                        task2
+                );
+
+        when(
+                maintenanceTaskRepository
+                        .findByTechnicianId(
+                                technicianId
+                        )
+        ).thenReturn(
+                tasks
+        );
+
+        List<MaintenanceTask> result =
+                maintenanceTaskService
+                        .getTasksByTechnicianId(
+                                technicianId
+                        );
+
+        assertEquals(
+                2,
+                result.size()
+        );
+
+        assertSame(
+                tasks,
+                result
+        );
+
+        verify(
+                maintenanceTaskRepository
+        ).findByTechnicianId(
+                technicianId
+        );
     }
 
     @Test
     void shouldUpdateMaintenanceTask() {
+
         Long taskId = 1L;
 
-        Aircraft originalAircraft = new Aircraft();
-        Aircraft updatedAircraft = new Aircraft();
+        Aircraft originalAircraft =
+                new Aircraft();
 
-        MaintenanceTask existingTask = new MaintenanceTask();
-        existingTask.setTitle("Old task");
-        existingTask.setDescription("Old description");
-        existingTask.setPriority(MaintenancePriority.LOW);
-        existingTask.setStatus(MaintenanceStatus.OPEN);
-        existingTask.setAircraft(originalAircraft);
+        Aircraft updatedAircraft =
+                new Aircraft();
 
-        MaintenanceTask updatedTask = new MaintenanceTask();
-        updatedTask.setTitle("Hydraulic system inspection");
+        MaintenanceTask existingTask =
+                new MaintenanceTask();
+
+        existingTask.setTitle(
+                "Old task"
+        );
+
+        existingTask.setDescription(
+                "Old description"
+        );
+
+        existingTask.setPriority(
+                MaintenancePriority.LOW
+        );
+
+        existingTask.setStatus(
+                MaintenanceStatus.OPEN
+        );
+
+        existingTask.setAircraft(
+                originalAircraft
+        );
+
+        MaintenanceTask updatedTask =
+                new MaintenanceTask();
+
+        updatedTask.setTitle(
+                "Hydraulic system inspection"
+        );
+
         updatedTask.setDescription(
                 "Inspect hydraulic lines and connections."
         );
-        updatedTask.setPriority(MaintenancePriority.HIGH);
-        updatedTask.setStatus(MaintenanceStatus.IN_PROGRESS);
-        updatedTask.setAircraft(updatedAircraft);
 
-        when(maintenanceTaskRepository.findById(taskId))
-                .thenReturn(Optional.of(existingTask));
+        updatedTask.setPriority(
+                MaintenancePriority.HIGH
+        );
 
-        when(maintenanceTaskRepository.save(existingTask))
-                .thenReturn(existingTask);
+        updatedTask.setStatus(
+                MaintenanceStatus.IN_PROGRESS
+        );
+
+        updatedTask.setAircraft(
+                updatedAircraft
+        );
+
+        when(
+                maintenanceTaskRepository
+                        .findById(
+                                taskId
+                        )
+        ).thenReturn(
+                Optional.of(
+                        existingTask
+                )
+        );
+
+        when(
+                maintenanceTaskRepository.save(
+                        existingTask
+                )
+        ).thenReturn(
+                existingTask
+        );
 
         MaintenanceTask result =
                 maintenanceTaskService.updateTask(
@@ -148,79 +297,146 @@ public class MaintenanceTaskServiceTest {
                 result.getAircraft()
         );
 
-        verify(maintenanceTaskRepository)
-                .findById(taskId);
+        verify(
+                maintenanceTaskRepository
+        ).findById(
+                taskId
+        );
 
-        verify(maintenanceTaskRepository)
-                .save(existingTask);
+        verify(
+                maintenanceTaskRepository
+        ).save(
+                existingTask
+        );
     }
 
     @Test
     void shouldUpdateMaintenanceTaskStatus() {
+
         Long taskId = 1L;
 
-        MaintenanceTask task = new MaintenanceTask();
-        task.setStatus(MaintenanceStatus.OPEN);
+        MaintenanceTask task =
+                new MaintenanceTask();
 
-        when(maintenanceTaskRepository.findById(taskId))
-                .thenReturn(Optional.of(task));
+        task.setStatus(
+                MaintenanceStatus.OPEN
+        );
 
-        when(maintenanceTaskRepository.save(task))
-                .thenReturn(task);
+        when(
+                maintenanceTaskRepository
+                        .findById(
+                                taskId
+                        )
+        ).thenReturn(
+                Optional.of(task)
+        );
+
+        when(
+                maintenanceTaskRepository.save(
+                        task
+                )
+        ).thenReturn(
+                task
+        );
 
         MaintenanceTask result =
-                maintenanceTaskService.updateTaskStatus(
-                        taskId,
-                        MaintenanceStatus.IN_PROGRESS
-                );
+                maintenanceTaskService
+                        .updateTaskStatus(
+                                taskId,
+                                MaintenanceStatus.IN_PROGRESS
+                        );
 
         assertEquals(
                 MaintenanceStatus.IN_PROGRESS,
                 result.getStatus()
         );
 
-        verify(maintenanceTaskRepository).findById(taskId);
-        verify(maintenanceTaskRepository).save(task);
+        verify(
+                maintenanceTaskRepository
+        ).findById(
+                taskId
+        );
+
+        verify(
+                maintenanceTaskRepository
+        ).save(
+                task
+        );
     }
 
     @Test
     void shouldAssignTechnicianToMaintenanceTask() {
+
         Long taskId = 1L;
         Long technicianId = 2L;
 
-        MaintenanceTask task = new MaintenanceTask();
+        MaintenanceTask task =
+                new MaintenanceTask();
 
-        Technician technician = new Technician(
-                "Alex",
-                "Carter",
-                "TECH-002",
-                "Avionics",
-                true
+        Technician technician =
+                new Technician(
+                        "Alex",
+                        "Carter",
+                        "TECH-002",
+                        "Avionics",
+                        true
+                );
+
+        when(
+                maintenanceTaskRepository
+                        .findById(
+                                taskId
+                        )
+        ).thenReturn(
+                Optional.of(task)
         );
 
-        when(maintenanceTaskRepository.findById(taskId))
-                .thenReturn(Optional.of(task));
+        when(
+                technicianRepository
+                        .findById(
+                                technicianId
+                        )
+        ).thenReturn(
+                Optional.of(technician)
+        );
 
-        when(technicianRepository.findById(technicianId))
-                .thenReturn(Optional.of(technician));
-
-        when(maintenanceTaskRepository.save(task))
-                .thenReturn(task);
+        when(
+                maintenanceTaskRepository.save(
+                        task
+                )
+        ).thenReturn(
+                task
+        );
 
         MaintenanceTask result =
-                maintenanceTaskService.assignTechnician(
-                        taskId,
-                        technicianId
-                );
+                maintenanceTaskService
+                        .assignTechnician(
+                                taskId,
+                                technicianId
+                        );
 
         assertSame(
                 technician,
                 result.getTechnician()
         );
 
-        verify(maintenanceTaskRepository).findById(taskId);
-        verify(technicianRepository).findById(technicianId);
-        verify(maintenanceTaskRepository).save(task);
+        verify(
+                maintenanceTaskRepository
+        ).findById(
+                taskId
+        );
+
+        verify(
+                technicianRepository
+        ).findById(
+                technicianId
+        );
+
+        verify(
+                maintenanceTaskRepository
+        ).save(
+                task
+        );
     }
 
     @Test
@@ -231,16 +447,30 @@ public class MaintenanceTaskServiceTest {
         MaintenanceTask task =
                 new MaintenanceTask();
 
-        when(maintenanceTaskRepository.findById(taskId))
-                .thenReturn(Optional.of(task));
+        when(
+                maintenanceTaskRepository
+                        .findById(
+                                taskId
+                        )
+        ).thenReturn(
+                Optional.of(task)
+        );
 
-        maintenanceTaskService.deleteTask(taskId);
+        maintenanceTaskService.deleteTask(
+                taskId
+        );
 
-        verify(maintenanceTaskRepository)
-                .findById(taskId);
+        verify(
+                maintenanceTaskRepository
+        ).findById(
+                taskId
+        );
 
-        verify(maintenanceTaskRepository)
-                .delete(task);
+        verify(
+                maintenanceTaskRepository
+        ).delete(
+                task
+        );
     }
 
     @Test
@@ -248,29 +478,97 @@ public class MaintenanceTaskServiceTest {
 
         Long taskId = 99L;
 
-        when(maintenanceTaskRepository.findById(taskId))
-                .thenReturn(Optional.empty());
+        when(
+                maintenanceTaskRepository
+                        .findById(
+                                taskId
+                        )
+        ).thenReturn(
+                Optional.empty()
+        );
 
         IllegalArgumentException exception =
                 assertThrows(
                         IllegalArgumentException.class,
-                        () -> maintenanceTaskService
-                                .deleteTask(taskId)
+                        () ->
+                                maintenanceTaskService
+                                        .deleteTask(
+                                                taskId
+                                        )
                 );
 
         assertEquals(
-                "Maintenance task not found with id: " + taskId,
+                "Maintenance task not found with id: "
+                        + taskId,
                 exception.getMessage()
         );
 
-        verify(maintenanceTaskRepository)
-                .findById(taskId);
+        verify(
+                maintenanceTaskRepository
+        ).findById(
+                taskId
+        );
 
-        verify(maintenanceTaskRepository, never())
-                .delete(
-                        org.mockito.ArgumentMatchers
-                                .any(MaintenanceTask.class)
-                );
+        verify(
+                maintenanceTaskRepository,
+                never()
+        ).delete(
+                org.mockito.ArgumentMatchers
+                        .any(
+                                MaintenanceTask.class
+                        )
+        );
     }
 
+    @Test
+    void shouldUnassignTechnician() {
+
+        Long taskId = 1L;
+
+        MaintenanceTask task =
+                new MaintenanceTask();
+
+        Technician technician =
+                new Technician();
+
+        task.setTechnician(
+                technician
+        );
+
+        when(
+                maintenanceTaskRepository
+                        .findById(taskId)
+        ).thenReturn(
+                Optional.of(task)
+        );
+
+        when(
+                maintenanceTaskRepository
+                        .save(task)
+        ).thenReturn(
+                task
+        );
+
+        MaintenanceTask result =
+                maintenanceTaskService
+                        .unassignTechnician(
+                                taskId
+                        );
+
+        assertNull(
+                result.getTechnician()
+        );
+
+        verify(
+                maintenanceTaskRepository
+        ).findById(
+                taskId
+        );
+
+        verify(
+                maintenanceTaskRepository
+        ).save(
+                task
+        );
+    }
 }

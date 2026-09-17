@@ -279,6 +279,13 @@ export class Dashboard implements OnInit {
     );
   }
 
+  get canViewMyTasks(): boolean {
+
+    return this.hasRole(
+      'TECHNICIAN'
+    );
+  }
+
   get totalAircraft(): number {
     return this.aircraft.length;
   }

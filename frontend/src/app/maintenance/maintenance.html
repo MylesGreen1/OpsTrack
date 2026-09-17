@@ -459,6 +459,51 @@
 
           </div>
 
+          <!-- ASSIGNED TECHNICIAN -->
+
+          <div class="form-group">
+
+            <label for="task-technician">
+              Assigned Technician
+            </label>
+
+            <select
+              id="task-technician"
+              name="technician"
+              [(ngModel)]="selectedTechnicianId"
+            >
+
+              <option [ngValue]="null">
+                Unassigned
+              </option>
+
+              @for (
+                technician of technicians;
+                track technician.id
+                ) {
+
+                <option
+                  [ngValue]="technician.id"
+                >
+                  {{ technician.firstName }}
+                  {{ technician.lastName }}
+                  — {{ technician.employeeNumber }}
+                </option>
+
+              }
+
+            </select>
+
+            @if (technicians.length === 0) {
+
+              <p class="field-help">
+                No technician records are available.
+              </p>
+
+            }
+
+          </div>
+
 
           <!-- FORM ERROR -->
 

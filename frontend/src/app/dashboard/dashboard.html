@@ -70,6 +70,28 @@
         </a>
       }
 
+      @if (canViewMyTasks) {
+        <a
+          class="dashboard-card"
+          routerLink="/my-tasks"
+        >
+          <div class="card-icon">📋</div>
+
+          <div class="card-content">
+            <h3>My Assigned Tasks</h3>
+
+            <p>
+              View maintenance tasks assigned to your
+              technician account.
+            </p>
+
+            <span class="card-link">
+        View My Tasks →
+      </span>
+          </div>
+        </a>
+      }
+
       @if (canViewTechnicians) {
         <a
           class="dashboard-card"

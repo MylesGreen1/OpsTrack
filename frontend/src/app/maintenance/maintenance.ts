@@ -13,6 +13,11 @@ import {
 } from '../aircraft/aircraft.service';
 
 import {
+  Technician,
+  TechnicianService
+} from '../technician/technician.service';
+
+import {
   MaintenancePriority,
   MaintenanceStatus,
   MaintenanceTask,
@@ -35,6 +40,8 @@ export class Maintenance implements OnInit {
 
   aircraft: Aircraft[] = [];
 
+  technicians: Technician[] = [];
+
   loading = true;
 
   saving = false;
@@ -51,6 +58,8 @@ export class Maintenance implements OnInit {
 
   selectedAircraftId: number | null = null;
 
+  selectedTechnicianId: number | null = null;
+
   newTask = {
     title: '',
     description: '',
@@ -61,12 +70,14 @@ export class Maintenance implements OnInit {
   constructor(
     private readonly maintenanceTaskService: MaintenanceTaskService,
     private readonly aircraftService: AircraftService,
+    private readonly technicianService: TechnicianService,
     private readonly changeDetectorRef: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
     this.loadMaintenanceTasks();
     this.loadAircraft();
+    this.loadTechnicians();
   }
 
 
@@ -145,6 +156,38 @@ export class Maintenance implements OnInit {
 
 
   // =========================
+  // LOAD TECHNICIANS
+  // =========================
+
+  loadTechnicians(): void {
+
+    this.technicianService
+      .getAllTechnicians()
+      .subscribe({
+
+        next: (technicians) => {
+
+          this.technicians = technicians;
+
+          this.changeDetectorRef
+            .markForCheck();
+        },
+
+        error: (error) => {
+
+          console.error(
+            'Error loading technicians for maintenance task form:',
+            error
+          );
+
+          this.changeDetectorRef
+            .markForCheck();
+        }
+      });
+  }
+
+
+  // =========================
   // OPEN ADD TASK FORM
   // =========================
 
@@ -171,6 +214,9 @@ export class Maintenance implements OnInit {
 
     this.selectedAircraftId =
       task.aircraft.id;
+
+    this.selectedTechnicianId =
+      task.technician?.id ?? null;
 
     this.newTask = {
       title: task.title,
@@ -285,6 +331,15 @@ export class Maintenance implements OnInit {
 
         next: (createdTask) => {
 
+          if (this.selectedTechnicianId !== null) {
+
+            this.assignTechnician(
+              createdTask.id
+            );
+
+            return;
+          }
+
           this.maintenanceTasks = [
             ...this.maintenanceTasks,
             createdTask
@@ -313,8 +368,8 @@ export class Maintenance implements OnInit {
 
 
   // =========================
-  // UPDATE TASK
-  // =========================
+// UPDATE TASK
+// =========================
 
   updateTask(
     taskId: number,
@@ -330,15 +385,18 @@ export class Maintenance implements OnInit {
 
         next: (updatedTask) => {
 
-          this.maintenanceTasks =
-            this.maintenanceTasks.map(
-              task =>
-                task.id === updatedTask.id
-                  ? updatedTask
-                  : task
+          if (this.selectedTechnicianId !== null) {
+
+            this.assignTechnician(
+              updatedTask.id
             );
 
-          this.finishSave();
+            return;
+          }
+
+          this.unassignTechnician(
+            updatedTask.id
+          );
         },
 
         error: (error) => {
@@ -359,6 +417,133 @@ export class Maintenance implements OnInit {
       });
   }
 
+
+  // =========================
+  // ASSIGN TECHNICIAN
+  // =========================
+
+  assignTechnician(
+    taskId: number
+  ): void {
+
+    if (this.selectedTechnicianId === null) {
+      return;
+    }
+
+    this.maintenanceTaskService
+      .assignTechnician(
+        taskId,
+        this.selectedTechnicianId
+      )
+      .subscribe({
+
+        next: (updatedTask) => {
+
+          const existingTask =
+            this.maintenanceTasks.find(
+              task =>
+                task.id === updatedTask.id
+            );
+
+          if (existingTask) {
+
+            this.maintenanceTasks =
+              this.maintenanceTasks.map(
+                task =>
+                  task.id === updatedTask.id
+                    ? updatedTask
+                    : task
+              );
+
+          } else {
+
+            this.maintenanceTasks = [
+              ...this.maintenanceTasks,
+              updatedTask
+            ];
+          }
+
+          this.finishSave();
+        },
+
+        error: (error) => {
+
+          console.error(
+            'Error assigning technician to maintenance task:',
+            error
+          );
+
+          this.formErrorMessage =
+            'The task was saved, but the technician could not be assigned.';
+
+          this.saving = false;
+
+          this.changeDetectorRef
+            .markForCheck();
+        }
+      });
+  }
+
+  // =========================
+// UNASSIGN TECHNICIAN
+// =========================
+
+  unassignTechnician(
+    taskId: number
+  ): void {
+
+    this.maintenanceTaskService
+      .unassignTechnician(
+        taskId
+      )
+      .subscribe({
+
+        next: (updatedTask) => {
+
+          const existingTask =
+            this.maintenanceTasks.find(
+              task =>
+                task.id === updatedTask.id
+            );
+
+          if (existingTask) {
+
+            this.maintenanceTasks =
+              this.maintenanceTasks.map(
+                task =>
+                  task.id === updatedTask.id
+                    ? updatedTask
+                    : task
+              );
+
+          } else {
+
+            this.maintenanceTasks = [
+              ...this.maintenanceTasks,
+              updatedTask
+            ];
+          }
+
+          this.finishSave();
+        },
+
+        error: (error) => {
+
+          console.error(
+            'Error unassigning technician from maintenance task:',
+            error
+          );
+
+          this.formErrorMessage =
+            'The task was saved, but the technician assignment could not be removed.';
+
+          this.saving = false;
+
+          this.changeDetectorRef
+            .markForCheck();
+        }
+      });
+  }
 
   // =========================
   // DELETE TASK
@@ -442,6 +627,8 @@ export class Maintenance implements OnInit {
     this.editingTaskId = null;
 
     this.selectedAircraftId = null;
+
+    this.selectedTechnicianId = null;
 
     this.newTask = {
       title: '',

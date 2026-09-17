@@ -32,6 +32,15 @@ public class MaintenanceTaskService {
         return maintenanceTaskRepository.findByAircraftId(aircraftId);
     }
 
+
+    public List<MaintenanceTask> getTasksByTechnicianId(
+            Long technicianId
+    ) {
+        return maintenanceTaskRepository.findByTechnicianId(
+                technicianId
+        );
+    }
+
     public MaintenanceTask updateTask(
             Long taskId,
             MaintenanceTask updatedTask
@@ -80,6 +89,19 @@ public class MaintenanceTaskService {
                 ));
 
         task.setTechnician(technician);
+
+        return maintenanceTaskRepository.save(task);
+    }
+
+    public MaintenanceTask unassignTechnician(
+            Long taskId
+    ) {
+        MaintenanceTask task = maintenanceTaskRepository.findById(taskId)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Maintenance task not found with id: " + taskId
+                ));
+
+        task.setTechnician(null);
 
         return maintenanceTaskRepository.save(task);
     }

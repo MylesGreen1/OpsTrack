@@ -1,18 +1,26 @@
 package com.opstrack.maintenance;
 
+import com.opstrack.security.AppUser;
+import com.opstrack.security.AppUserRepository;
+import com.opstrack.security.Role;
 import com.opstrack.technician.Technician;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
+import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -22,7 +30,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 
 @WebMvcTest(MaintenanceTaskController.class)
 @WithMockUser(roles = "SUPERVISOR")
@@ -37,30 +44,63 @@ public class MaintenanceTaskControllerTest {
     @MockitoBean
     private MaintenanceTaskService maintenanceTaskService;
 
+    @MockitoBean
+    private AppUserRepository appUserRepository;
+
     @Test
     void shouldGetAllMaintenanceTasks() throws Exception {
-        MaintenanceTask task1 = new MaintenanceTask();
-        task1.setTitle("Hydraulic inspection");
-        task1.setStatus(MaintenanceStatus.OPEN);
 
-        MaintenanceTask task2 = new MaintenanceTask();
-        task2.setTitle("Engine inspection");
-        task2.setStatus(MaintenanceStatus.IN_PROGRESS);
+        MaintenanceTask task1 =
+                new MaintenanceTask();
+
+        task1.setTitle(
+                "Hydraulic inspection"
+        );
+
+        task1.setStatus(
+                MaintenanceStatus.OPEN
+        );
+
+        MaintenanceTask task2 =
+                new MaintenanceTask();
+
+        task2.setTitle(
+                "Engine inspection"
+        );
+
+        task2.setStatus(
+                MaintenanceStatus.IN_PROGRESS
+        );
 
         List<MaintenanceTask> tasks =
-                List.of(task1, task2);
+                List.of(
+                        task1,
+                        task2
+                );
 
-        when(maintenanceTaskService.getAllTasks())
-                .thenReturn(tasks);
+        when(
+                maintenanceTaskService.getAllTasks()
+        ).thenReturn(
+                tasks
+        );
 
         mockMvc.perform(
-                        get("/api/maintenance-tasks")
+                        get(
+                                "/api/maintenance-tasks"
+                        )
                 )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(
+                        status().isOk()
+                )
+                .andExpect(
+                        jsonPath("$.length()")
+                                .value(2)
+                )
                 .andExpect(
                         jsonPath("$[0].title")
-                                .value("Hydraulic inspection")
+                                .value(
+                                        "Hydraulic inspection"
+                                )
                 )
                 .andExpect(
                         jsonPath("$[0].status")
@@ -68,7 +108,9 @@ public class MaintenanceTaskControllerTest {
                 )
                 .andExpect(
                         jsonPath("$[1].title")
-                                .value("Engine inspection")
+                                .value(
+                                        "Engine inspection"
+                                )
                 )
                 .andExpect(
                         jsonPath("$[1].status")
@@ -77,56 +119,206 @@ public class MaintenanceTaskControllerTest {
     }
 
     @Test
-    void shouldGetTasksByAircraftId() throws Exception {
-        Long aircraftId = 1L;
+    void shouldGetTasksForAuthenticatedTechnician() {
 
-        MaintenanceTask task1 = new MaintenanceTask();
-        MaintenanceTask task2 = new MaintenanceTask();
+        Long technicianId = 2L;
 
-        List<MaintenanceTask> tasks =
-                List.of(task1, task2);
+        Technician technician =
+                mock(
+                        Technician.class
+                );
 
         when(
-                maintenanceTaskService
-                        .getTasksByAircraftId(aircraftId)
-        ).thenReturn(tasks);
+                technician.getId()
+        ).thenReturn(
+                technicianId
+        );
 
-        mockMvc.perform(
-                        get("/api/maintenance-tasks/aircraft/1")
-                )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(2));
-    }
+        AppUser appUser =
+                new AppUser(
+                        "technician",
+                        "encoded-password",
+                        Role.TECHNICIAN,
+                        true
+                );
 
-    @Test
-    void shouldCreateMaintenanceTask() throws Exception {
+        appUser.setTechnician(
+                technician
+        );
+
+        Authentication authentication =
+                mock(
+                        Authentication.class
+                );
+
+        when(
+                authentication.getName()
+        ).thenReturn(
+                "technician"
+        );
+
         MaintenanceTask task =
                 new MaintenanceTask();
 
-        task.setTitle("Hydraulic inspection");
-        task.setDescription("Inspect hydraulic system");
-        task.setStatus(MaintenanceStatus.OPEN);
-        task.setPriority(MaintenancePriority.HIGH);
+        task.setTitle(
+                "Inspect hydraulic system"
+        );
+
+        task.setStatus(
+                MaintenanceStatus.OPEN
+        );
+
+        when(
+                appUserRepository.findByUsername(
+                        "technician"
+                )
+        ).thenReturn(
+                Optional.of(appUser)
+        );
 
         when(
                 maintenanceTaskService
-                        .createTask(any(MaintenanceTask.class))
-        ).thenReturn(task);
+                        .getTasksByTechnicianId(
+                                technicianId
+                        )
+        ).thenReturn(
+                List.of(task)
+        );
+
+        MaintenanceTaskController controller =
+                new MaintenanceTaskController(
+                        maintenanceTaskService,
+                        appUserRepository
+                );
+
+        List<MaintenanceTask> result =
+                controller.getMyTasks(
+                        authentication
+                );
+
+        assertEquals(
+                1,
+                result.size()
+        );
+
+        assertEquals(
+                "Inspect hydraulic system",
+                result.get(0).getTitle()
+        );
+
+        assertEquals(
+                MaintenanceStatus.OPEN,
+                result.get(0).getStatus()
+        );
+
+        verify(
+                appUserRepository
+        ).findByUsername(
+                "technician"
+        );
+
+        verify(
+                maintenanceTaskService
+        ).getTasksByTechnicianId(
+                technicianId
+        );
+    }
+
+    @Test
+    void shouldGetTasksByAircraftId()
+            throws Exception {
+
+        Long aircraftId = 1L;
+
+        MaintenanceTask task1 =
+                new MaintenanceTask();
+
+        MaintenanceTask task2 =
+                new MaintenanceTask();
+
+        List<MaintenanceTask> tasks =
+                List.of(
+                        task1,
+                        task2
+                );
+
+        when(
+                maintenanceTaskService
+                        .getTasksByAircraftId(
+                                aircraftId
+                        )
+        ).thenReturn(
+                tasks
+        );
 
         mockMvc.perform(
-                        post("/api/maintenance-tasks")
+                        get(
+                                "/api/maintenance-tasks/aircraft/1"
+                        )
+                )
+                .andExpect(
+                        status().isOk()
+                )
+                .andExpect(
+                        jsonPath("$.length()")
+                                .value(2)
+                );
+    }
+
+    @Test
+    void shouldCreateMaintenanceTask()
+            throws Exception {
+
+        MaintenanceTask task =
+                new MaintenanceTask();
+
+        task.setTitle(
+                "Hydraulic inspection"
+        );
+
+        task.setDescription(
+                "Inspect hydraulic system"
+        );
+
+        task.setStatus(
+                MaintenanceStatus.OPEN
+        );
+
+        task.setPriority(
+                MaintenancePriority.HIGH
+        );
+
+        when(
+                maintenanceTaskService
+                        .createTask(
+                                any(MaintenanceTask.class)
+                        )
+        ).thenReturn(
+                task
+        );
+
+        mockMvc.perform(
+                        post(
+                                "/api/maintenance-tasks"
+                        )
                                 .contentType(
                                         MediaType.APPLICATION_JSON
                                 )
                                 .content(
                                         objectMapper
-                                                .writeValueAsString(task)
+                                                .writeValueAsString(
+                                                        task
+                                                )
                                 )
                 )
-                .andExpect(status().isOk())
+                .andExpect(
+                        status().isOk()
+                )
                 .andExpect(
                         jsonPath("$.title")
-                                .value("Hydraulic inspection")
+                                .value(
+                                        "Hydraulic inspection"
+                                )
                 )
                 .andExpect(
                         jsonPath("$.status")
@@ -135,7 +327,9 @@ public class MaintenanceTaskControllerTest {
     }
 
     @Test
-    void shouldUpdateMaintenanceTask() throws Exception {
+    void shouldUpdateMaintenanceTask()
+            throws Exception {
+
         Long taskId = 1L;
 
         MaintenanceTask requestTask =
@@ -178,23 +372,32 @@ public class MaintenanceTaskControllerTest {
 
         when(
                 maintenanceTaskService.updateTask(
-                        org.mockito.ArgumentMatchers.eq(taskId),
+                        org.mockito.ArgumentMatchers.eq(
+                                taskId
+                        ),
                         any(MaintenanceTask.class)
                 )
-        ).thenReturn(updatedTask);
+        ).thenReturn(
+                updatedTask
+        );
 
         mockMvc.perform(
-                        put("/api/maintenance-tasks/1")
+                        put(
+                                "/api/maintenance-tasks/1"
+                        )
                                 .contentType(
                                         MediaType.APPLICATION_JSON
                                 )
                                 .content(
-                                        objectMapper.writeValueAsString(
-                                                requestTask
-                                        )
+                                        objectMapper
+                                                .writeValueAsString(
+                                                        requestTask
+                                                )
                                 )
                 )
-                .andExpect(status().isOk())
+                .andExpect(
+                        status().isOk()
+                )
                 .andExpect(
                         jsonPath("$.title")
                                 .value(
@@ -236,7 +439,9 @@ public class MaintenanceTaskControllerTest {
                                 taskId,
                                 MaintenanceStatus.IN_PROGRESS
                         )
-        ).thenReturn(task);
+        ).thenReturn(
+                task
+        );
 
         mockMvc.perform(
                         patch(
@@ -247,7 +452,9 @@ public class MaintenanceTaskControllerTest {
                                         "IN_PROGRESS"
                                 )
                 )
-                .andExpect(status().isOk())
+                .andExpect(
+                        status().isOk()
+                )
                 .andExpect(
                         jsonPath("$.status")
                                 .value("IN_PROGRESS")
@@ -273,7 +480,9 @@ public class MaintenanceTaskControllerTest {
         MaintenanceTask task =
                 new MaintenanceTask();
 
-        task.setTechnician(technician);
+        task.setTechnician(
+                technician
+        );
 
         when(
                 maintenanceTaskService
@@ -281,18 +490,24 @@ public class MaintenanceTaskControllerTest {
                                 taskId,
                                 technicianId
                         )
-        ).thenReturn(task);
+        ).thenReturn(
+                task
+        );
 
         mockMvc.perform(
                         patch(
                                 "/api/maintenance-tasks/1/technician/2"
                         )
                 )
-                .andExpect(status().isOk())
+                .andExpect(
+                        status().isOk()
+                )
                 .andExpect(
                         jsonPath(
                                 "$.technician.employeeNumber"
-                        ).value("TECH-002")
+                        ).value(
+                                "TECH-002"
+                        )
                 );
     }
 
@@ -313,6 +528,40 @@ public class MaintenanceTaskControllerTest {
 
         verify(
                 maintenanceTaskService
-        ).deleteTask(taskId);
+        ).deleteTask(
+                taskId
+        );
+    }
+
+    @Test
+    void shouldUnassignTechnician()
+            throws Exception {
+
+        Long taskId = 1L;
+
+        MaintenanceTask task =
+                new MaintenanceTask();
+
+        when(
+                maintenanceTaskService
+                        .unassignTechnician(taskId)
+        ).thenReturn(
+                task
+        );
+
+        mockMvc.perform(
+                        patch(
+                                "/api/maintenance-tasks/1/technician/unassign"
+                        )
+                )
+                .andExpect(
+                        status().isOk()
+                );
+
+        verify(
+                maintenanceTaskService
+        ).unassignTechnician(
+                taskId
+        );
     }
 }

@@ -54,8 +54,16 @@ export class MaintenanceTaskService {
   ) {}
 
   getAllTasks(): Observable<MaintenanceTask[]> {
+
     return this.http.get<MaintenanceTask[]>(
       this.apiUrl
+    );
+  }
+
+  getMyTasks(): Observable<MaintenanceTask[]> {
+
+    return this.http.get<MaintenanceTask[]>(
+      `${this.apiUrl}/my-tasks`
     );
   }
 
@@ -124,4 +132,15 @@ export class MaintenanceTaskService {
       null
     );
   }
+
+  unassignTechnician(
+    taskId: number
+  ): Observable<MaintenanceTask> {
+
+    return this.http.patch<MaintenanceTask>(
+      `${this.apiUrl}/${taskId}/technician/unassign`,
+      null
+    );
+  }
+
 }
