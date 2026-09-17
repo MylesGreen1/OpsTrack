@@ -1,6 +1,7 @@
 package com.opstrack.security;
 
 import jakarta.persistence.*;
+import com.opstrack.technician.Technician;
 
 @Entity
 @Table(name = "app_users")
@@ -21,6 +22,10 @@ public class AppUser {
     private Role role;
 
     private boolean enabled;
+
+    @OneToOne
+    @JoinColumn(name = "technician_id", unique = true)
+    private Technician technician;
 
     public AppUser() {
     }
@@ -53,6 +58,10 @@ public class AppUser {
         return role;
     }
 
+    public Technician getTechnician() {
+        return technician;
+    }
+
     public boolean isEnabled() {
         return enabled;
     }
@@ -71,5 +80,9 @@ public class AppUser {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public void setTechnician(Technician technician) {
+        this.technician = technician;
     }
 }

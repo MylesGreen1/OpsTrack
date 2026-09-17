@@ -54,7 +54,10 @@ public class AuthController {
         return new CurrentUserResponse(
                 appUser.getUsername(),
                 appUser.getRole(),
-                appUser.isEnabled()
+                appUser.isEnabled(),
+                appUser.getTechnician() != null
+                        ? appUser.getTechnician().getId()
+                        : null
         );
     }
 }

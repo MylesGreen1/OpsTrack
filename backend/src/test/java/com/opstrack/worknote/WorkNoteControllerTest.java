@@ -1,25 +1,35 @@
 package com.opstrack.worknote;
 
+import com.opstrack.security.AppUser;
+import com.opstrack.security.AppUserRepository;
+import com.opstrack.security.Role;
 import com.opstrack.technician.Technician;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import static org.mockito.Mockito.verify;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 
 import java.util.List;
+import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import org.springframework.security.test.context.support.WithMockUser;
 
 @WebMvcTest(WorkNoteController.class)
-@WithMockUser(roles = "TECHNICIAN")
+@WithMockUser(
+        username = "technician",
+        roles = "TECHNICIAN"
+)
 public class WorkNoteControllerTest {
 
     @Autowired
@@ -28,64 +38,141 @@ public class WorkNoteControllerTest {
     @MockitoBean
     private WorkNoteService workNoteService;
 
+    @MockitoBean
+    private AppUserRepository appUserRepository;
+
     @Test
-    void shouldCreateWorkNote() throws Exception {
+    void shouldCreateWorkNoteForAuthenticatedTechnician() {
+
         Long maintenanceTaskId = 1L;
         Long technicianId = 2L;
-        String noteText = "Replaced damaged hydraulic fitting.";
 
-        Technician technician = new Technician(
-                "Alex",
-                "Carter",
-                "TECH-005",
-                "Hydraulics",
+        String noteText =
+                "Replaced damaged hydraulic fitting.";
+
+        Technician technician =
+                mock(Technician.class);
+
+        when(
+                technician.getId()
+        ).thenReturn(technicianId);
+
+        when(
+                technician.getEmployeeNumber()
+        ).thenReturn("TECH-005");
+
+        AppUser appUser = new AppUser(
+                "technician",
+                "encoded-password",
+                Role.TECHNICIAN,
                 true
         );
 
-        WorkNote workNote = new WorkNote();
-        workNote.setNote(noteText);
-        workNote.setTechnician(technician);
+        appUser.setTechnician(
+                technician
+        );
 
-        when(workNoteService.createWorkNote(
+        Authentication authentication =
+                mock(Authentication.class);
+
+        when(
+                authentication.getName()
+        ).thenReturn("technician");
+
+        when(
+                appUserRepository.findByUsername(
+                        "technician"
+                )
+        ).thenReturn(
+                Optional.of(appUser)
+        );
+
+        WorkNote workNote =
+                new WorkNote();
+
+        workNote.setNote(
+                noteText
+        );
+
+        workNote.setTechnician(
+                technician
+        );
+
+        when(
+                workNoteService.createWorkNote(
+                        maintenanceTaskId,
+                        technicianId,
+                        noteText
+                )
+        ).thenReturn(
+                workNote
+        );
+
+        WorkNoteController controller =
+                new WorkNoteController(
+                        workNoteService,
+                        appUserRepository
+                );
+
+        WorkNote result =
+                controller.createWorkNote(
+                        maintenanceTaskId,
+                        noteText,
+                        authentication
+                );
+
+        assertEquals(
+                noteText,
+                result.getNote()
+        );
+
+        assertEquals(
+                "TECH-005",
+                result.getTechnician()
+                        .getEmployeeNumber()
+        );
+
+        verify(
+                appUserRepository
+        ).findByUsername(
+                "technician"
+        );
+
+        verify(
+                workNoteService
+        ).createWorkNote(
                 maintenanceTaskId,
                 technicianId,
                 noteText
-        )).thenReturn(workNote);
-
-        mockMvc.perform(
-                        post("/api/work-notes")
-                                .param(
-                                        "maintenanceTaskId",
-                                        maintenanceTaskId.toString()
-                                )
-                                .param(
-                                        "technicianId",
-                                        technicianId.toString()
-                                )
-                                .param("note", noteText)
-                )
-                .andExpect(status().isOk())
-                .andExpect(
-                        jsonPath("$.note")
-                                .value(noteText)
-                )
-                .andExpect(
-                        jsonPath("$.technician.employeeNumber")
-                                .value("TECH-005")
-                );
+        );
     }
 
     @Test
-    void shouldGetAllWorkNotes() throws Exception {
+    void shouldGetAllWorkNotes()
+            throws Exception {
 
-        WorkNote note1 = new WorkNote();
-        note1.setNote("Inspected hydraulic lines.");
+        WorkNote note1 =
+                new WorkNote();
 
-        WorkNote note2 = new WorkNote();
-        note2.setNote("Replaced damaged fitting.");
+        note1.setNote(
+                "Inspected hydraulic lines."
+        );
 
-        when(workNoteService.getAllWorkNotes())
-                .thenReturn(List.of(note1, note2));
+        WorkNote note2 =
+                new WorkNote();
+
+        note2.setNote(
+                "Replaced damaged fitting."
+        );
+
+        when(
+                workNoteService.getAllWorkNotes()
+        ).thenReturn(
+                List.of(
+                        note1,
+                        note2
+                )
+        );
 
         mockMvc.perform(
                         get("/api/work-notes")
@@ -97,29 +184,49 @@ public class WorkNoteControllerTest {
                 )
                 .andExpect(
                         jsonPath("$[0].note")
-                                .value("Inspected hydraulic lines.")
+                                .value(
+                                        "Inspected hydraulic lines."
+                                )
                 )
                 .andExpect(
                         jsonPath("$[1].note")
-                                .value("Replaced damaged fitting.")
+                                .value(
+                                        "Replaced damaged fitting."
+                                )
                 );
     }
 
     @Test
-    void shouldGetWorkNotesByMaintenanceTaskId() throws Exception {
+    void shouldGetWorkNotesByMaintenanceTaskId()
+            throws Exception {
+
         Long maintenanceTaskId = 1L;
 
-        WorkNote note1 = new WorkNote();
-        note1.setNote("Inspected hydraulic lines.");
+        WorkNote note1 =
+                new WorkNote();
 
-        WorkNote note2 = new WorkNote();
-        note2.setNote("Replaced damaged fitting.");
+        note1.setNote(
+                "Inspected hydraulic lines."
+        );
+
+        WorkNote note2 =
+                new WorkNote();
+
+        note2.setNote(
+                "Replaced damaged fitting."
+        );
 
         when(
-                workNoteService.getWorkNotesByMaintenanceTaskId(
-                        maintenanceTaskId
+                workNoteService
+                        .getWorkNotesByMaintenanceTaskId(
+                                maintenanceTaskId
+                        )
+        ).thenReturn(
+                List.of(
+                        note1,
+                        note2
                 )
-        ).thenReturn(List.of(note1, note2));
+        );
 
         mockMvc.perform(
                         get(
@@ -133,19 +240,23 @@ public class WorkNoteControllerTest {
                 )
                 .andExpect(
                         jsonPath("$[0].note")
-                                .value("Inspected hydraulic lines.")
+                                .value(
+                                        "Inspected hydraulic lines."
+                                )
                 );
     }
 
     @Test
-    void shouldDeleteWorkNote() throws Exception {
+    void shouldDeleteWorkNote()
+            throws Exception {
 
         mockMvc.perform(
                         delete("/api/work-notes/1")
                 )
                 .andExpect(status().isOk());
 
-        verify(workNoteService).deleteWorkNote(1L);
+        verify(
+                workNoteService
+        ).deleteWorkNote(1L);
     }
-
 }

@@ -157,9 +157,9 @@
             <td>
               <ng-container
                 *ngIf="
-                    workNote.maintenanceTask.aircraft;
-                    else noAircraft
-                  ">
+                  workNote.maintenanceTask.aircraft;
+                  else noAircraft
+                ">
 
                 <div class="primary-cell">
                   {{
@@ -294,35 +294,14 @@
       </div>
 
       <div class="form-group">
-        <label for="technician">
+        <label>
           Technician
         </label>
 
-        <select
-          id="technician"
-          [(ngModel)]="selectedTechnicianId"
-          [disabled]="isSubmitting">
-
-          <option [ngValue]="null">
-            Select a technician
-          </option>
-
-          <option
-            *ngFor="let technician of technicians"
-            [ngValue]="technician.id">
-
-            {{ technician.firstName }}
-            {{ technician.lastName }}
-            —
-            {{ technician.employeeNumber }}
-
-          </option>
-
-        </select>
-
-        <small>
-          Only active technicians are available.
-        </small>
+        <div class="workflow-note">
+          This work note will automatically be recorded
+          under the technician account currently signed in.
+        </div>
       </div>
 
       <div class="form-group">
@@ -342,8 +321,8 @@
       <div class="workflow-note">
         <strong>Documentation note:</strong>
         This entry will be associated with the selected
-        maintenance task and technician and stored as part
-        of the maintenance history.
+        maintenance task and automatically attributed to
+        your linked technician record.
       </div>
 
       <div class="modal-actions">

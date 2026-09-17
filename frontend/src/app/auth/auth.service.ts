@@ -26,6 +26,7 @@ export interface CurrentUser {
   username: string;
   role: UserRole;
   enabled: boolean;
+  technicianId: number | null;
 }
 
 @Injectable({
@@ -44,6 +45,9 @@ export class AuthService {
 
   private readonly roleKey =
     'opstrack_role';
+
+  private readonly technicianIdKey =
+    'opstrack_technician_id';
 
   constructor(
     private readonly http: HttpClient
@@ -95,7 +99,8 @@ export class AuthService {
           this.setCredentials(
             username,
             password,
-            currentUser.role
+            currentUser.role,
+            currentUser.technicianId
           );
 
         })
@@ -112,7 +117,8 @@ export class AuthService {
   setCredentials(
     username: string,
     password: string,
-    role: UserRole
+    role: UserRole,
+    technicianId: number | null
   ): void {
 
     sessionStorage.setItem(
@@ -129,6 +135,20 @@ export class AuthService {
       this.roleKey,
       role
     );
+
+    if (technicianId !== null) {
+
+      sessionStorage.setItem(
+        this.technicianIdKey,
+        technicianId.toString()
+      );
+
+    } else {
+
+      sessionStorage.removeItem(
+        this.technicianIdKey
+      );
+    }
   }
 
   clearCredentials(): void {
@@ -143,6 +163,10 @@ export class AuthService {
 
     sessionStorage.removeItem(
       this.roleKey
+    );
+
+    sessionStorage.removeItem(
+      this.technicianIdKey
     );
   }
 
@@ -182,6 +206,20 @@ export class AuthService {
     return sessionStorage.getItem(
       this.roleKey
     ) as UserRole | null;
+  }
+
+  getTechnicianId(): number | null {
+
+    const technicianId =
+      sessionStorage.getItem(
+        this.technicianIdKey
+      );
+
+    if (!technicianId) {
+      return null;
+    }
+
+    return Number(technicianId);
   }
 
   hasRole(

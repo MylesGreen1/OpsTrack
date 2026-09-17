@@ -1,5 +1,9 @@
 package com.opstrack.worknote;
 
+import com.opstrack.security.AppUser;
+import com.opstrack.security.AppUserRepository;
+import com.opstrack.technician.Technician;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -9,9 +13,14 @@ import java.util.List;
 public class WorkNoteController {
 
     private final WorkNoteService workNoteService;
+    private final AppUserRepository appUserRepository;
 
-    public WorkNoteController(WorkNoteService workNoteService) {
+    public WorkNoteController(
+            WorkNoteService workNoteService,
+            AppUserRepository appUserRepository
+    ) {
         this.workNoteService = workNoteService;
+        this.appUserRepository = appUserRepository;
     }
 
     @GetMapping
@@ -22,12 +31,34 @@ public class WorkNoteController {
     @PostMapping
     public WorkNote createWorkNote(
             @RequestParam Long maintenanceTaskId,
-            @RequestParam Long technicianId,
-            @RequestParam String note
+            @RequestParam String note,
+            Authentication authentication
     ) {
+
+        AppUser appUser =
+                appUserRepository
+                        .findByUsername(
+                                authentication.getName()
+                        )
+                        .orElseThrow(
+                                () -> new IllegalArgumentException(
+                                        "Authenticated user not found."
+                                )
+                        );
+
+        Technician technician =
+                appUser.getTechnician();
+
+        if (technician == null) {
+            throw new IllegalStateException(
+                    "Authenticated user is not linked " +
+                            "to a technician record."
+            );
+        }
+
         return workNoteService.createWorkNote(
                 maintenanceTaskId,
-                technicianId,
+                technician.getId(),
                 note
         );
     }

@@ -18,9 +18,8 @@ import {
 } from '../maintenance/maintenance-task.service';
 
 import {
-  Technician,
-  TechnicianService
-} from '../technician/technician.service';
+  AuthService
+} from '../auth/auth.service';
 
 @Component({
   selector: 'app-worknote',
@@ -37,10 +36,8 @@ export class WorkNoteComponent implements OnInit {
 
   workNotes: WorkNote[] = [];
   maintenanceTasks: MaintenanceTask[] = [];
-  technicians: Technician[] = [];
 
   selectedMaintenanceTaskId: number | null = null;
-  selectedTechnicianId: number | null = null;
   noteText = '';
 
   showCreateModal = false;
@@ -51,24 +48,28 @@ export class WorkNoteComponent implements OnInit {
   constructor(
     private readonly workNoteService: WorkNoteService,
     private readonly maintenanceTaskService: MaintenanceTaskService,
-    private readonly technicianService: TechnicianService,
+    private readonly authService: AuthService,
     private readonly changeDetectorRef: ChangeDetectorRef
   ) {}
+
   ngOnInit(): void {
     this.loadWorkNotes();
     this.loadMaintenanceTasks();
-    this.loadTechnicians();
   }
 
   loadWorkNotes(): void {
+
     this.workNoteService
       .getAllWorkNotes()
       .subscribe({
         next: (workNotes) => {
+
           this.workNotes = workNotes;
+
           this.changeDetectorRef.markForCheck();
         },
         error: (error) => {
+
           console.error(
             'Failed to load work notes:',
             error
@@ -81,52 +82,46 @@ export class WorkNoteComponent implements OnInit {
   }
 
   loadMaintenanceTasks(): void {
+
     this.maintenanceTaskService
       .getAllTasks()
       .subscribe({
         next: (tasks) => {
+
           this.maintenanceTasks = tasks;
+
+          this.changeDetectorRef.markForCheck();
         },
         error: (error) => {
+
           console.error(
             'Failed to load maintenance tasks:',
             error
           );
-        }
-      });
-  }
 
-  loadTechnicians(): void {
-    this.technicianService
-      .getAllTechnicians()
-      .subscribe({
-        next: (technicians) => {
-          this.technicians =
-            technicians.filter(
-              technician => technician.active
-            );
-        },
-        error: (error) => {
-          console.error(
-            'Failed to load technicians:',
-            error
-          );
+          this.errorMessage =
+            'Unable to load maintenance tasks.';
         }
       });
   }
 
   openCreateModal(): void {
+
     this.resetForm();
+
     this.errorMessage = '';
+
     this.showCreateModal = true;
   }
 
   closeCreateModal(): void {
+
     if (this.isSubmitting) {
       return;
     }
 
     this.showCreateModal = false;
+
     this.resetForm();
   }
 
@@ -135,22 +130,32 @@ export class WorkNoteComponent implements OnInit {
     this.errorMessage = '';
 
     if (this.selectedMaintenanceTaskId === null) {
+
       this.errorMessage =
         'Please select a maintenance task.';
+
       return;
     }
 
-    if (this.selectedTechnicianId === null) {
+    const technicianId =
+      this.authService.getTechnicianId();
+
+    if (technicianId === null) {
+
       this.errorMessage =
-        'Please select a technician.';
+        'Your account is not linked to a technician record.';
+
       return;
     }
 
-    const trimmedNote = this.noteText.trim();
+    const trimmedNote =
+      this.noteText.trim();
 
     if (!trimmedNote) {
+
       this.errorMessage =
         'Please enter a work note.';
+
       return;
     }
 
@@ -159,7 +164,7 @@ export class WorkNoteComponent implements OnInit {
     this.workNoteService
       .createWorkNote(
         this.selectedMaintenanceTaskId,
-        this.selectedTechnicianId,
+        technicianId,
         trimmedNote
       )
       .subscribe({
@@ -171,6 +176,7 @@ export class WorkNoteComponent implements OnInit {
           ];
 
           this.isSubmitting = false;
+
           this.showCreateModal = false;
 
           this.resetForm();
@@ -188,15 +194,20 @@ export class WorkNoteComponent implements OnInit {
             'Unable to create the work note.';
 
           this.isSubmitting = false;
+
+          this.changeDetectorRef.markForCheck();
         }
       });
   }
 
-  deleteWorkNote(workNote: WorkNote): void {
+  deleteWorkNote(
+    workNote: WorkNote
+  ): void {
 
-    const confirmed = window.confirm(
-      'Are you sure you want to delete this work note?'
-    );
+    const confirmed =
+      window.confirm(
+        'Are you sure you want to delete this work note?'
+      );
 
     if (!confirmed) {
       return;
@@ -209,7 +220,8 @@ export class WorkNoteComponent implements OnInit {
 
           this.workNotes =
             this.workNotes.filter(
-              note => note.id !== workNote.id
+              note =>
+                note.id !== workNote.id
             );
 
           this.changeDetectorRef.markForCheck();
@@ -230,32 +242,44 @@ export class WorkNoteComponent implements OnInit {
   }
 
   resetForm(): void {
+
     this.selectedMaintenanceTaskId = null;
-    this.selectedTechnicianId = null;
+
     this.noteText = '';
   }
 
   get totalWorkNotes(): number {
+
     return this.workNotes.length;
   }
 
   get uniqueTasks(): number {
+
     return new Set(
       this.workNotes
-        .map(workNote =>
-          workNote.maintenanceTask?.id
+        .map(
+          workNote =>
+            workNote.maintenanceTask?.id
         )
-        .filter(id => id !== undefined)
+        .filter(
+          id =>
+            id !== undefined
+        )
     ).size;
   }
 
   get uniqueTechnicians(): number {
+
     return new Set(
       this.workNotes
-        .map(workNote =>
-          workNote.technician?.id
+        .map(
+          workNote =>
+            workNote.technician?.id
         )
-        .filter(id => id !== undefined)
+        .filter(
+          id =>
+            id !== undefined
+        )
     ).size;
   }
 

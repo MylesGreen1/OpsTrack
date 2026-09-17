@@ -1,5 +1,7 @@
 package com.opstrack.security;
 
+import com.opstrack.technician.Technician;
+import com.opstrack.technician.TechnicianRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
@@ -14,6 +16,9 @@ public class AppUserRepositoryTest {
 
     @Autowired
     private AppUserRepository appUserRepository;
+
+    @Autowired
+    private TechnicianRepository technicianRepository;
 
     @Test
     void shouldSaveAppUser() {
@@ -49,5 +54,52 @@ public class AppUserRepositoryTest {
         assertEquals("qa1", foundUser.getUsername());
         assertEquals(Role.QA_INSPECTOR, foundUser.getRole());
         assertEquals(true, foundUser.isEnabled());
+    }
+
+    @Test
+    void shouldFindAppUserByTechnicianId() {
+
+        Technician technician = new Technician(
+                "Alex",
+                "Morgan",
+                "TECH-100",
+                "Avionics",
+                true
+        );
+
+        Technician savedTechnician =
+                technicianRepository.save(technician);
+
+        AppUser appUser = new AppUser(
+                "alex.morgan",
+                "hashed-password-placeholder",
+                Role.TECHNICIAN,
+                true
+        );
+
+        appUser.setTechnician(savedTechnician);
+
+        appUserRepository.save(appUser);
+
+        AppUser foundUser =
+                appUserRepository
+                        .findByTechnicianId(
+                                savedTechnician.getId()
+                        )
+                        .orElseThrow();
+
+        assertEquals(
+                "alex.morgan",
+                foundUser.getUsername()
+        );
+
+        assertNotNull(
+                foundUser.getTechnician()
+        );
+
+        assertEquals(
+                savedTechnician.getId(),
+                foundUser.getTechnician().getId()
+        );
     }
 }

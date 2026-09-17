@@ -1,5 +1,7 @@
 package com.opstrack.security;
 
+import com.opstrack.technician.Technician;
+import com.opstrack.technician.TechnicianRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,7 +14,8 @@ public class DevUserInitializer {
     @Bean
     public CommandLineRunner createDevUsers(
             AuthService authService,
-            AppUserRepository appUserRepository
+            AppUserRepository appUserRepository,
+            TechnicianRepository technicianRepository
     ) {
         return args -> {
 
@@ -63,20 +66,53 @@ public class DevUserInitializer {
                                 "Technician development user was not created."
                 );
 
-            } else if (appUserRepository
-                    .findByUsername(technicianUsername)
-                    .isEmpty()) {
+            } else {
 
-                authService.registerUser(
-                        technicianUsername,
-                        technicianPassword,
-                        Role.TECHNICIAN
-                );
+                Technician technician =
+                        technicianRepository
+                                .findByEmployeeNumber("DEV-TECH-001")
+                                .orElseGet(() -> {
 
-                System.out.println(
-                        "Technician development user created: " +
-                                technicianUsername
-                );
+                                    Technician newTechnician =
+                                            new Technician(
+                                                    "Development",
+                                                    "Technician",
+                                                    "DEV-TECH-001",
+                                                    "Aircraft Maintenance",
+                                                    true
+                                            );
+
+                                    return technicianRepository.save(
+                                            newTechnician
+                                    );
+                                });
+
+                AppUser technicianUser =
+                        appUserRepository
+                                .findByUsername(technicianUsername)
+                                .orElseGet(() ->
+                                        authService.registerUser(
+                                                technicianUsername,
+                                                technicianPassword,
+                                                Role.TECHNICIAN
+                                        )
+                                );
+
+                if (technicianUser.getTechnician() == null) {
+
+                    technicianUser.setTechnician(
+                            technician
+                    );
+
+                    appUserRepository.save(
+                            technicianUser
+                    );
+
+                    System.out.println(
+                            "Technician development user linked " +
+                                    "to technician record."
+                    );
+                }
             }
         };
     }
