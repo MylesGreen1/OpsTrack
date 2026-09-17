@@ -7,6 +7,7 @@ import { RegisterComponent } from './register/register';
 import { Maintenance } from './maintenance/maintenance';
 import { TechnicianComponent } from './technician/technician';
 import { InspectionComponent } from './inspection/inspection';
+import { WorkNoteComponent } from './worknote/worknote';
 
 import { authGuard } from './auth/auth.guard';
 
@@ -42,6 +43,11 @@ export const routes: Routes = [
   {
     path: 'inspections',
     component: InspectionComponent,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'work-notes',
+    component: WorkNoteComponent,
     canActivate: [authGuard]
   },
   {

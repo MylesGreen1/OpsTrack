@@ -53,6 +53,10 @@ public class WorkNoteService {
         return workNoteRepository.save(workNote);
     }
 
+    public List<WorkNote> getAllWorkNotes() {
+        return workNoteRepository.findAll();
+    }
+
     public List<WorkNote> getWorkNotesByMaintenanceTaskId(
             Long maintenanceTaskId
     ) {
@@ -60,4 +64,16 @@ public class WorkNoteService {
                 maintenanceTaskId
         );
     }
+
+    public void deleteWorkNote(Long id) {
+
+        WorkNote workNote =
+                workNoteRepository.findById(id)
+                        .orElseThrow(() -> new IllegalArgumentException(
+                                "Work note not found with id: " + id
+                        ));
+
+        workNoteRepository.delete(workNote);
+    }
+
 }

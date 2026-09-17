@@ -1,0 +1,383 @@
+<div class="worknote-page">
+
+  <header class="top-bar">
+    <div>
+      <h1 class="brand">OpsTrack</h1>
+      <span class="brand-subtitle">
+        Maintenance Operations Management
+      </span>
+    </div>
+
+    <a routerLink="/" class="dashboard-link">
+      Dashboard
+    </a>
+  </header>
+
+  <main class="page-content">
+
+    <section class="page-heading">
+      <div>
+        <p class="eyebrow">MAINTENANCE DOCUMENTATION</p>
+        <h2>Work Notes</h2>
+        <p class="page-description">
+          Record technician maintenance activity and review
+          documented work history.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        class="primary-button"
+        (click)="openCreateModal()">
+        + New Work Note
+      </button>
+    </section>
+
+    <section class="summary-grid">
+
+      <div class="summary-card">
+        <span class="summary-label">
+          Total Work Notes
+        </span>
+
+        <strong class="summary-value">
+          {{ totalWorkNotes }}
+        </strong>
+      </div>
+
+      <div class="summary-card">
+        <span class="summary-label">
+          Tasks Documented
+        </span>
+
+        <strong class="summary-value">
+          {{ uniqueTasks }}
+        </strong>
+      </div>
+
+      <div class="summary-card">
+        <span class="summary-label">
+          Technicians
+        </span>
+
+        <strong class="summary-value">
+          {{ uniqueTechnicians }}
+        </strong>
+      </div>
+
+      <div class="summary-card">
+        <span class="summary-label">
+          Latest Entry
+        </span>
+
+        <strong
+          class="summary-date"
+          *ngIf="latestWorkNote; else noLatestEntry">
+
+          {{ latestWorkNote.createdAt |
+          date:'MMM d, y, h:mm a' }}
+
+        </strong>
+
+        <ng-template #noLatestEntry>
+          <strong class="summary-date">
+            No entries
+          </strong>
+        </ng-template>
+      </div>
+
+    </section>
+
+    <section
+      class="error-banner"
+      *ngIf="errorMessage && !showCreateModal">
+
+      {{ errorMessage }}
+
+    </section>
+
+    <section class="records-card">
+
+      <div class="records-header">
+        <div>
+          <h3>Maintenance Work History</h3>
+          <p>
+            Technician documentation recorded against
+            maintenance tasks.
+          </p>
+        </div>
+      </div>
+
+      <div
+        class="empty-state"
+        *ngIf="workNotes.length === 0">
+
+        <h4>No work notes found</h4>
+
+        <p>
+          Create a work note to begin documenting
+          maintenance activity.
+        </p>
+
+      </div>
+
+      <div
+        class="table-wrapper"
+        *ngIf="workNotes.length > 0">
+
+        <table>
+
+          <thead>
+          <tr>
+            <th>Maintenance Task</th>
+            <th>Aircraft</th>
+            <th>Technician</th>
+            <th>Work Performed</th>
+            <th>Date / Time</th>
+            <th>Actions</th>
+          </tr>
+          </thead>
+
+          <tbody>
+
+          <tr *ngFor="let workNote of workNotes">
+
+            <td>
+              <div class="primary-cell">
+                {{ workNote.maintenanceTask.title }}
+              </div>
+
+              <div class="secondary-cell">
+                {{ workNote.maintenanceTask.status }}
+                ·
+                {{ workNote.maintenanceTask.priority }}
+              </div>
+            </td>
+
+            <td>
+              <ng-container
+                *ngIf="
+                    workNote.maintenanceTask.aircraft;
+                    else noAircraft
+                  ">
+
+                <div class="primary-cell">
+                  {{
+                    workNote.maintenanceTask
+                      .aircraft.tailNumber
+                  }}
+                </div>
+
+                <div class="secondary-cell">
+                  {{
+                    workNote.maintenanceTask
+                      .aircraft.aircraftType
+                  }}
+                </div>
+
+              </ng-container>
+
+              <ng-template #noAircraft>
+                <span class="muted">
+                  Not assigned
+                </span>
+              </ng-template>
+            </td>
+
+            <td>
+              <div class="primary-cell">
+                {{ workNote.technician.firstName }}
+                {{ workNote.technician.lastName }}
+              </div>
+
+              <div class="secondary-cell">
+                {{ workNote.technician.employeeNumber }}
+              </div>
+            </td>
+
+            <td class="note-cell">
+              {{ workNote.note }}
+            </td>
+
+            <td class="date-cell">
+              {{
+                workNote.createdAt |
+                  date:'MMM d, y'
+              }}
+
+              <span>
+                {{
+                  workNote.createdAt |
+                    date:'h:mm a'
+                }}
+              </span>
+            </td>
+
+            <td class="actions-cell">
+              <button
+                type="button"
+                class="delete-button"
+                (click)="deleteWorkNote(workNote)">
+                Delete
+              </button>
+            </td>
+
+          </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <div
+    class="modal-backdrop"
+    *ngIf="showCreateModal">
+
+    <div class="modal-card">
+
+      <div class="modal-header">
+        <div>
+          <p class="eyebrow">
+            MAINTENANCE DOCUMENTATION
+          </p>
+
+          <h3>New Work Note</h3>
+        </div>
+
+        <button
+          type="button"
+          class="close-button"
+          [disabled]="isSubmitting"
+          (click)="closeCreateModal()">
+          ×
+        </button>
+      </div>
+
+      <div
+        class="modal-error"
+        *ngIf="errorMessage">
+
+        {{ errorMessage }}
+
+      </div>
+
+      <div class="form-group">
+        <label for="maintenanceTask">
+          Maintenance Task
+        </label>
+
+        <select
+          id="maintenanceTask"
+          [(ngModel)]="selectedMaintenanceTaskId"
+          [disabled]="isSubmitting">
+
+          <option [ngValue]="null">
+            Select a maintenance task
+          </option>
+
+          <option
+            *ngFor="let task of maintenanceTasks"
+            [ngValue]="task.id">
+
+            {{ task.title }}
+            —
+            {{ task.aircraft.tailNumber }}
+
+          </option>
+
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="technician">
+          Technician
+        </label>
+
+        <select
+          id="technician"
+          [(ngModel)]="selectedTechnicianId"
+          [disabled]="isSubmitting">
+
+          <option [ngValue]="null">
+            Select a technician
+          </option>
+
+          <option
+            *ngFor="let technician of technicians"
+            [ngValue]="technician.id">
+
+            {{ technician.firstName }}
+            {{ technician.lastName }}
+            —
+            {{ technician.employeeNumber }}
+
+          </option>
+
+        </select>
+
+        <small>
+          Only active technicians are available.
+        </small>
+      </div>
+
+      <div class="form-group">
+        <label for="note">
+          Work Performed
+        </label>
+
+        <textarea
+          id="note"
+          rows="6"
+          [(ngModel)]="noteText"
+          [disabled]="isSubmitting"
+          placeholder="Describe the maintenance work performed, findings, corrective actions, or other relevant details.">
+        </textarea>
+      </div>
+
+      <div class="workflow-note">
+        <strong>Documentation note:</strong>
+        This entry will be associated with the selected
+        maintenance task and technician and stored as part
+        of the maintenance history.
+      </div>
+
+      <div class="modal-actions">
+
+        <button
+          type="button"
+          class="secondary-button"
+          [disabled]="isSubmitting"
+          (click)="closeCreateModal()">
+          Cancel
+        </button>
+
+        <button
+          type="button"
+          class="primary-button"
+          [disabled]="isSubmitting"
+          (click)="createWorkNote()">
+
+          {{
+            isSubmitting
+              ? 'Saving...'
+              : 'Save Work Note'
+          }}
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <footer class="page-footer">
+    OpsTrack · Maintenance Operations Management System
+  </footer>
+
+</div>

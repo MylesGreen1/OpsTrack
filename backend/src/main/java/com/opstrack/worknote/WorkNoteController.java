@@ -14,6 +14,11 @@ public class WorkNoteController {
         this.workNoteService = workNoteService;
     }
 
+    @GetMapping
+    public List<WorkNote> getAllWorkNotes() {
+        return workNoteService.getAllWorkNotes();
+    }
+
     @PostMapping
     public WorkNote createWorkNote(
             @RequestParam Long maintenanceTaskId,
@@ -34,5 +39,12 @@ public class WorkNoteController {
         return workNoteService.getWorkNotesByMaintenanceTaskId(
                 maintenanceTaskId
         );
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteWorkNote(
+            @PathVariable Long id
+    ) {
+        workNoteService.deleteWorkNote(id);
     }
 }

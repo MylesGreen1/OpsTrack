@@ -15,8 +15,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class WorkNoteServiceTest {
@@ -77,6 +76,25 @@ public class WorkNoteServiceTest {
     }
 
     @Test
+    void shouldGetAllWorkNotes() {
+        WorkNote note1 = new WorkNote();
+        WorkNote note2 = new WorkNote();
+
+        List<WorkNote> workNotes = List.of(note1, note2);
+
+        when(workNoteRepository.findAll())
+                .thenReturn(workNotes);
+
+        List<WorkNote> result =
+                workNoteService.getAllWorkNotes();
+
+        assertEquals(2, result.size());
+        assertSame(workNotes, result);
+
+        verify(workNoteRepository).findAll();
+    }
+
+    @Test
     void shouldGetWorkNotesByMaintenanceTaskId() {
         Long maintenanceTaskId = 1L;
 
@@ -97,5 +115,29 @@ public class WorkNoteServiceTest {
 
         verify(workNoteRepository)
                 .findByMaintenanceTaskId(maintenanceTaskId);
+    }
+
+    @Test
+    void shouldDeleteWorkNote() {
+
+        MaintenanceTask maintenanceTask =
+                mock(MaintenanceTask.class);
+
+        Technician technician =
+                mock(Technician.class);
+
+        WorkNote workNote = new WorkNote(
+                "Completed hydraulic leak check.",
+                maintenanceTask,
+                technician
+        );
+
+        when(workNoteRepository.findById(1L))
+                .thenReturn(Optional.of(workNote));
+
+        workNoteService.deleteWorkNote(1L);
+
+        verify(workNoteRepository).findById(1L);
+        verify(workNoteRepository).delete(workNote);
     }
 }

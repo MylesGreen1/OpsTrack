@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 
 import java.util.List;
 
@@ -74,6 +76,36 @@ public class WorkNoteControllerTest {
     }
 
     @Test
+    void shouldGetAllWorkNotes() throws Exception {
+
+        WorkNote note1 = new WorkNote();
+        note1.setNote("Inspected hydraulic lines.");
+
+        WorkNote note2 = new WorkNote();
+        note2.setNote("Replaced damaged fitting.");
+
+        when(workNoteService.getAllWorkNotes())
+                .thenReturn(List.of(note1, note2));
+
+        mockMvc.perform(
+                        get("/api/work-notes")
+                )
+                .andExpect(status().isOk())
+                .andExpect(
+                        jsonPath("$.length()")
+                                .value(2)
+                )
+                .andExpect(
+                        jsonPath("$[0].note")
+                                .value("Inspected hydraulic lines.")
+                )
+                .andExpect(
+                        jsonPath("$[1].note")
+                                .value("Replaced damaged fitting.")
+                );
+    }
+
+    @Test
     void shouldGetWorkNotesByMaintenanceTaskId() throws Exception {
         Long maintenanceTaskId = 1L;
 
@@ -104,4 +136,16 @@ public class WorkNoteControllerTest {
                                 .value("Inspected hydraulic lines.")
                 );
     }
+
+    @Test
+    void shouldDeleteWorkNote() throws Exception {
+
+        mockMvc.perform(
+                        delete("/api/work-notes/1")
+                )
+                .andExpect(status().isOk());
+
+        verify(workNoteService).deleteWorkNote(1L);
+    }
+
 }
