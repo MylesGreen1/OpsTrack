@@ -26,24 +26,29 @@ import {
   InspectionService
 } from '../inspection/inspection.service';
 
+import {
+  AuthService,
+  CurrentUser,
+  UserRole
+} from '../auth/auth.service';
+
 @Component({
   selector: 'app-dashboard',
+  standalone: true,
   imports: [RouterLink],
   templateUrl: './dashboard.html',
-  styleUrl: './dashboard.css',
+  styleUrl: './dashboard.css'
 })
 export class Dashboard implements OnInit {
 
   aircraft: Aircraft[] = [];
-
   maintenanceTasks: MaintenanceTask[] = [];
-
   technicians: Technician[] = [];
-
   inspections: Inspection[] = [];
 
-  loading = true;
+  currentUser: CurrentUser | null = null;
 
+  loading = true;
   errorMessage = '';
 
   constructor(
@@ -51,14 +56,67 @@ export class Dashboard implements OnInit {
     private readonly maintenanceTaskService: MaintenanceTaskService,
     private readonly technicianService: TechnicianService,
     private readonly inspectionService: InspectionService,
+    private readonly authService: AuthService,
     private readonly changeDetectorRef: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
-    this.loadAircraft();
-    this.loadMaintenanceTasks();
-    this.loadTechnicians();
-    this.loadInspections();
+    this.loadCurrentUser();
+  }
+
+  loadCurrentUser(): void {
+
+    this.authService
+      .getCurrentUser()
+      .subscribe({
+
+        next: (user: CurrentUser) => {
+
+          this.currentUser = user;
+
+          this.loadAllowedDashboardData();
+
+          this.changeDetectorRef.markForCheck();
+        },
+
+        error: (error: unknown) => {
+
+          console.error(
+            'Error loading current user:',
+            error
+          );
+
+          this.errorMessage =
+            'Unable to load current user information.';
+
+          this.loading = false;
+
+          this.changeDetectorRef.markForCheck();
+        }
+      });
+  }
+
+  loadAllowedDashboardData(): void {
+
+    if (this.canViewAircraft) {
+      this.loadAircraft();
+    }
+
+    if (this.canViewMaintenanceTasks) {
+      this.loadMaintenanceTasks();
+    }
+
+    if (this.canViewTechnicians) {
+      this.loadTechnicians();
+    }
+
+    if (this.canViewInspections) {
+      this.loadInspections();
+    }
+
+    this.loading = false;
+
+    this.changeDetectorRef.markForCheck();
   }
 
   loadAircraft(): void {
@@ -71,8 +129,7 @@ export class Dashboard implements OnInit {
 
           this.aircraft = aircraft;
 
-          this.changeDetectorRef
-            .markForCheck();
+          this.changeDetectorRef.markForCheck();
         },
 
         error: (error) => {
@@ -82,11 +139,7 @@ export class Dashboard implements OnInit {
             error
           );
 
-          this.errorMessage =
-            'Unable to load aircraft information.';
-
-          this.changeDetectorRef
-            .markForCheck();
+          this.changeDetectorRef.markForCheck();
         }
       });
   }
@@ -101,8 +154,7 @@ export class Dashboard implements OnInit {
 
           this.maintenanceTasks = tasks;
 
-          this.changeDetectorRef
-            .markForCheck();
+          this.changeDetectorRef.markForCheck();
         },
 
         error: (error) => {
@@ -112,11 +164,7 @@ export class Dashboard implements OnInit {
             error
           );
 
-          this.errorMessage =
-            'Unable to load maintenance task information.';
-
-          this.changeDetectorRef
-            .markForCheck();
+          this.changeDetectorRef.markForCheck();
         }
       });
   }
@@ -131,8 +179,7 @@ export class Dashboard implements OnInit {
 
           this.technicians = technicians;
 
-          this.changeDetectorRef
-            .markForCheck();
+          this.changeDetectorRef.markForCheck();
         },
 
         error: (error) => {
@@ -142,11 +189,7 @@ export class Dashboard implements OnInit {
             error
           );
 
-          this.errorMessage =
-            'Unable to load technician information.';
-
-          this.changeDetectorRef
-            .markForCheck();
+          this.changeDetectorRef.markForCheck();
         }
       });
   }
@@ -161,10 +204,7 @@ export class Dashboard implements OnInit {
 
           this.inspections = inspections;
 
-          this.loading = false;
-
-          this.changeDetectorRef
-            .markForCheck();
+          this.changeDetectorRef.markForCheck();
         },
 
         error: (error) => {
@@ -174,15 +214,69 @@ export class Dashboard implements OnInit {
             error
           );
 
-          this.errorMessage =
-            'Unable to load inspection information.';
-
-          this.loading = false;
-
-          this.changeDetectorRef
-            .markForCheck();
+          this.changeDetectorRef.markForCheck();
         }
       });
+  }
+
+  hasRole(
+    ...roles: UserRole[]
+  ): boolean {
+
+    if (!this.currentUser) {
+      return false;
+    }
+
+    return roles.includes(
+      this.currentUser.role
+    );
+  }
+
+  get canViewAircraft(): boolean {
+
+    return this.hasRole(
+      'TECHNICIAN',
+      'SUPERVISOR',
+      'QA_INSPECTOR',
+      'ADMIN'
+    );
+  }
+
+  get canViewMaintenanceTasks(): boolean {
+
+    return this.hasRole(
+      'TECHNICIAN',
+      'SUPERVISOR',
+      'QA_INSPECTOR',
+      'ADMIN'
+    );
+  }
+
+  get canViewTechnicians(): boolean {
+
+    return this.hasRole(
+      'TECHNICIAN',
+      'SUPERVISOR',
+      'QA_INSPECTOR',
+      'ADMIN'
+    );
+  }
+
+  get canViewInspections(): boolean {
+
+    return this.hasRole(
+      'QA_INSPECTOR',
+      'ADMIN'
+    );
+  }
+
+  get canViewWorkNotes(): boolean {
+
+    return this.hasRole(
+      'TECHNICIAN',
+      'SUPERVISOR',
+      'ADMIN'
+    );
   }
 
   get totalAircraft(): number {
@@ -192,8 +286,9 @@ export class Dashboard implements OnInit {
   get openTasks(): number {
 
     return this.maintenanceTasks
-      .filter(task =>
-        task.status !== 'COMPLETED'
+      .filter(
+        task =>
+          task.status !== 'COMPLETED'
       )
       .length;
   }

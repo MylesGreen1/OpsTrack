@@ -71,23 +71,36 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
 
-                        .requestMatchers("/api/auth/**")
+                        .requestMatchers(
+                                "/api/auth/register"
+                        )
                         .permitAll()
 
-                        .requestMatchers("/api/inspections/**")
+                        .requestMatchers(
+                                "/api/auth/me"
+                        )
+                        .authenticated()
+
+                        .requestMatchers(
+                                "/api/inspections/**"
+                        )
                         .hasAnyRole(
                                 "QA_INSPECTOR",
                                 "ADMIN"
                         )
 
-                        .requestMatchers("/api/work-notes/**")
+                        .requestMatchers(
+                                "/api/work-notes/**"
+                        )
                         .hasAnyRole(
                                 "TECHNICIAN",
                                 "SUPERVISOR",
                                 "ADMIN"
                         )
 
-                        .requestMatchers("/api/maintenance-tasks/**")
+                        .requestMatchers(
+                                "/api/maintenance-tasks/**"
+                        )
                         .hasAnyRole(
                                 "TECHNICIAN",
                                 "SUPERVISOR",

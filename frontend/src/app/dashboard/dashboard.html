@@ -1,5 +1,3 @@
-
-
 <div class="dashboard-page">
 
   <header class="app-header">
@@ -19,7 +17,9 @@
 
     <section class="welcome-section">
       <p class="section-label">OPERATIONS OVERVIEW</p>
+
       <h2>Maintenance Operations</h2>
+
       <p class="section-description">
         Manage aircraft, maintenance activity, technician assignments,
         and quality inspections from one location.
@@ -28,53 +28,110 @@
 
     <section class="card-grid">
 
-      <a class="dashboard-card" routerLink="/aircraft">
-        <div class="card-icon">✈</div>
+      @if (canViewAircraft) {
+        <a
+          class="dashboard-card"
+          routerLink="/aircraft"
+        >
+          <div class="card-icon">✈</div>
 
-        <div class="card-content">
-          <h3>Aircraft</h3>
-          <p>
-            View and manage aircraft records and maintenance status.
-          </p>
-          <span class="card-link">View Aircraft →</span>
-        </div>
-      </a>
+          <div class="card-content">
+            <h3>Aircraft</h3>
 
-      <div class="dashboard-card">
-        <div class="card-icon">🛠</div>
+            <p>
+              View and manage aircraft records and maintenance status.
+            </p>
 
-        <div class="card-content">
-          <h3>Maintenance Tasks</h3>
-          <p>
-            Track open and completed maintenance work.
-          </p>
-          <span class="card-link">View Tasks →</span>
-        </div>
-      </div>
+            <span class="card-link">
+              View Aircraft →
+            </span>
+          </div>
+        </a>
+      }
 
-      <div class="dashboard-card">
-        <div class="card-icon">👷</div>
+      @if (canViewMaintenanceTasks) {
+        <a
+          class="dashboard-card"
+          routerLink="/maintenance"
+        >
+          <div class="card-icon">🛠</div>
 
-        <div class="card-content">
-          <h3>Technicians</h3>
-          <p>
-            Manage technician assignments and specialties.
-          </p>
-          <span class="card-link">View Technicians →</span>
-        </div>
-      </div>
+          <div class="card-content">
+            <h3>Maintenance Tasks</h3>
 
-      <div class="dashboard-card">
-        <div class="card-icon">✓</div>
+            <p>
+              Track open and completed maintenance work.
+            </p>
 
-        <div class="card-content">
-          <h3>Inspections</h3>
-          <p>
-            Review QA inspections and approval status.
-          </p>
-          <span class="card-link">View Inspections →</span>
-        </div>
-      </div>
+            <span class="card-link">
+              View Tasks →
+            </span>
+          </div>
+        </a>
+      }
+
+      @if (canViewTechnicians) {
+        <a
+          class="dashboard-card"
+          routerLink="/technicians"
+        >
+          <div class="card-icon">👷</div>
+
+          <div class="card-content">
+            <h3>Technicians</h3>
+
+            <p>
+              Manage technician assignments and specialties.
+            </p>
+
+            <span class="card-link">
+              View Technicians →
+            </span>
+          </div>
+        </a>
+      }
+
+      @if (canViewInspections) {
+        <a
+          class="dashboard-card"
+          routerLink="/inspections"
+        >
+          <div class="card-icon">✓</div>
+
+          <div class="card-content">
+            <h3>Inspections</h3>
+
+            <p>
+              Review QA inspections and approval status.
+            </p>
+
+            <span class="card-link">
+              View Inspections →
+            </span>
+          </div>
+        </a>
+      }
+
+      @if (canViewWorkNotes) {
+        <a
+          class="dashboard-card"
+          routerLink="/work-notes"
+        >
+          <div class="card-icon">📝</div>
+
+          <div class="card-content">
+            <h3>Work Notes</h3>
+
+            <p>
+              Document maintenance work performed by technicians.
+            </p>
+
+            <span class="card-link">
+              View Work Notes →
+            </span>
+          </div>
+        </a>
+      }
 
     </section>
 
@@ -82,36 +139,79 @@
 
       <div class="status-header">
         <div>
-          <p class="section-label">SYSTEM STATUS</p>
+          <p class="section-label">
+            SYSTEM STATUS
+          </p>
+
           <h2>Operations Summary</h2>
         </div>
       </div>
 
       <div class="status-grid">
 
-        <div class="status-card">
-          <span class="status-title">Aircraft</span>
-          <strong>{{ totalAircraft }}</strong>
-          <span class="status-description">Fleet records</span>
-        </div>
+        @if (canViewAircraft) {
+          <div class="status-card">
+            <span class="status-title">
+              Aircraft
+            </span>
 
-        <div class="status-card">
-          <span class="status-title">Open Tasks</span>
-          <strong>{{ openTasks }}</strong>
-          <span class="status-description">Maintenance actions</span>
-        </div>
+            <strong>
+              {{ totalAircraft }}
+            </strong>
 
-        <div class="status-card">
-          <span class="status-title">Technicians</span>
-          <strong>{{ totalTechnicians }}</strong>
-          <span class="status-description">Maintenance personnel</span>
-        </div>
+            <span class="status-description">
+              Fleet records
+            </span>
+          </div>
+        }
 
-        <div class="status-card">
-          <span class="status-title">QA Inspections</span>
-          <strong>{{ totalInspections }}</strong>
-          <span class="status-description">Inspection records</span>
-        </div>
+        @if (canViewMaintenanceTasks) {
+          <div class="status-card">
+            <span class="status-title">
+              Open Tasks
+            </span>
+
+            <strong>
+              {{ openTasks }}
+            </strong>
+
+            <span class="status-description">
+              Maintenance actions
+            </span>
+          </div>
+        }
+
+        @if (canViewTechnicians) {
+          <div class="status-card">
+            <span class="status-title">
+              Technicians
+            </span>
+
+            <strong>
+              {{ totalTechnicians }}
+            </strong>
+
+            <span class="status-description">
+              Maintenance personnel
+            </span>
+          </div>
+        }
+
+        @if (canViewInspections) {
+          <div class="status-card">
+            <span class="status-title">
+              QA Inspections
+            </span>
+
+            <strong>
+              {{ totalInspections }}
+            </strong>
+
+            <span class="status-description">
+              Inspection records
+            </span>
+          </div>
+        }
 
       </div>
 
@@ -120,7 +220,9 @@
   </main>
 
   <footer class="app-footer">
-    <p>OpsTrack Maintenance Operations Management System</p>
+    <p>
+      OpsTrack Maintenance Operations Management System
+    </p>
   </footer>
 
 </div>

@@ -25,12 +25,13 @@ import {
 
 @Component({
   selector: 'app-aircraft',
+  standalone: true,
   imports: [
     RouterLink,
     FormsModule
   ],
   templateUrl: './aircraft.html',
-  styleUrl: './aircraft.css',
+  styleUrl: './aircraft.css'
 })
 export class AircraftComponent implements OnInit {
 

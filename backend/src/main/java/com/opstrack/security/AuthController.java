@@ -1,5 +1,6 @@
 package com.opstrack.security;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -7,9 +8,14 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+    private final AppUserRepository appUserRepository;
 
-    public AuthController(AuthService authService) {
+    public AuthController(
+            AuthService authService,
+            AppUserRepository appUserRepository
+    ) {
         this.authService = authService;
+        this.appUserRepository = appUserRepository;
     }
 
     @PostMapping("/register")
@@ -24,6 +30,28 @@ public class AuthController {
         );
 
         return new RegisterResponse(
+                appUser.getUsername(),
+                appUser.getRole(),
+                appUser.isEnabled()
+        );
+    }
+
+    @GetMapping("/me")
+    public CurrentUserResponse getCurrentUser(
+            Authentication authentication
+    ) {
+        AppUser appUser =
+                appUserRepository
+                        .findByUsername(
+                                authentication.getName()
+                        )
+                        .orElseThrow(
+                                () -> new IllegalArgumentException(
+                                        "Authenticated user not found."
+                                )
+                        );
+
+        return new CurrentUserResponse(
                 appUser.getUsername(),
                 appUser.getRole(),
                 appUser.isEnabled()

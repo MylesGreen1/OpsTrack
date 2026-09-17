@@ -1,10 +1,30 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import {
+  HttpClient,
+  HttpHeaders
+} from '@angular/common/http';
+
 import { Injectable } from '@angular/core';
-import { Observable, tap } from 'rxjs';
+
+import {
+  Observable,
+  tap
+} from 'rxjs';
+
+export type UserRole =
+  | 'TECHNICIAN'
+  | 'SUPERVISOR'
+  | 'QA_INSPECTOR'
+  | 'ADMIN';
 
 export interface RegisterResponse {
   username: string;
-  role: string;
+  role: UserRole;
+  enabled: boolean;
+}
+
+export interface CurrentUser {
+  username: string;
+  role: UserRole;
   enabled: boolean;
 }
 
@@ -21,6 +41,9 @@ export class AuthService {
 
   private readonly passwordKey =
     'opstrack_password';
+
+  private readonly roleKey =
+    'opstrack_role';
 
   constructor(
     private readonly http: HttpClient
@@ -47,7 +70,7 @@ export class AuthService {
   login(
     username: string,
     password: string
-  ): Observable<unknown> {
+  ): Observable<CurrentUser> {
 
     const credentials =
       `${username}:${password}`;
@@ -62,23 +85,34 @@ export class AuthService {
       });
 
     return this.http
-      .get(
-        `${this.backendUrl}/api/aircraft`,
+      .get<CurrentUser>(
+        `${this.backendUrl}/api/auth/me`,
         { headers }
       )
       .pipe(
-        tap(() => {
+        tap(currentUser => {
+
           this.setCredentials(
             username,
-            password
+            password,
+            currentUser.role
           );
+
         })
       );
   }
 
+  getCurrentUser(): Observable<CurrentUser> {
+
+    return this.http.get<CurrentUser>(
+      `${this.backendUrl}/api/auth/me`
+    );
+  }
+
   setCredentials(
     username: string,
-    password: string
+    password: string,
+    role: UserRole
   ): void {
 
     sessionStorage.setItem(
@@ -90,6 +124,11 @@ export class AuthService {
       this.passwordKey,
       password
     );
+
+    sessionStorage.setItem(
+      this.roleKey,
+      role
+    );
   }
 
   clearCredentials(): void {
@@ -100,6 +139,10 @@ export class AuthService {
 
     sessionStorage.removeItem(
       this.passwordKey
+    );
+
+    sessionStorage.removeItem(
+      this.roleKey
     );
   }
 
@@ -115,9 +158,45 @@ export class AuthService {
         this.passwordKey
       );
 
+    const role =
+      sessionStorage.getItem(
+        this.roleKey
+      );
+
     return (
       !!username &&
-      !!password
+      !!password &&
+      !!role
+    );
+  }
+
+  getUsername(): string | null {
+
+    return sessionStorage.getItem(
+      this.usernameKey
+    );
+  }
+
+  getRole(): UserRole | null {
+
+    return sessionStorage.getItem(
+      this.roleKey
+    ) as UserRole | null;
+  }
+
+  hasRole(
+    ...roles: UserRole[]
+  ): boolean {
+
+    const currentRole =
+      this.getRole();
+
+    if (!currentRole) {
+      return false;
+    }
+
+    return roles.includes(
+      currentRole
     );
   }
 

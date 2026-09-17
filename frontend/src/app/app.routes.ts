@@ -10,6 +10,7 @@ import { InspectionComponent } from './inspection/inspection';
 import { WorkNoteComponent } from './worknote/worknote';
 
 import { authGuard } from './auth/auth.guard';
+import { roleGuard } from './auth/role.guard';
 
 export const routes: Routes = [
   {
@@ -28,27 +29,79 @@ export const routes: Routes = [
   {
     path: 'aircraft',
     component: AircraftComponent,
-    canActivate: [authGuard]
+    canActivate: [
+      authGuard,
+      roleGuard
+    ],
+    data: {
+      roles: [
+        'TECHNICIAN',
+        'SUPERVISOR',
+        'QA_INSPECTOR',
+        'ADMIN'
+      ]
+    }
   },
   {
     path: 'maintenance',
     component: Maintenance,
-    canActivate: [authGuard]
+    canActivate: [
+      authGuard,
+      roleGuard
+    ],
+    data: {
+      roles: [
+        'TECHNICIAN',
+        'SUPERVISOR',
+        'QA_INSPECTOR',
+        'ADMIN'
+      ]
+    }
   },
   {
     path: 'technicians',
     component: TechnicianComponent,
-    canActivate: [authGuard]
+    canActivate: [
+      authGuard,
+      roleGuard
+    ],
+    data: {
+      roles: [
+        'TECHNICIAN',
+        'SUPERVISOR',
+        'QA_INSPECTOR',
+        'ADMIN'
+      ]
+    }
   },
   {
     path: 'inspections',
     component: InspectionComponent,
-    canActivate: [authGuard]
+    canActivate: [
+      authGuard,
+      roleGuard
+    ],
+    data: {
+      roles: [
+        'QA_INSPECTOR',
+        'ADMIN'
+      ]
+    }
   },
   {
     path: 'work-notes',
     component: WorkNoteComponent,
-    canActivate: [authGuard]
+    canActivate: [
+      authGuard,
+      roleGuard
+    ],
+    data: {
+      roles: [
+        'TECHNICIAN',
+        'SUPERVISOR',
+        'ADMIN'
+      ]
+    }
   },
   {
     path: '**',
