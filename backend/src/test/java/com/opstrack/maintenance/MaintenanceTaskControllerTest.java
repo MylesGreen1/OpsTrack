@@ -564,4 +564,90 @@ public class MaintenanceTaskControllerTest {
                 taskId
         );
     }
+
+    @Test
+    void shouldUpdateMyAssignedTaskStatus() {
+
+        Long taskId = 1L;
+        Long technicianId = 2L;
+
+        MaintenanceStatus status =
+                MaintenanceStatus.IN_PROGRESS;
+
+        Technician technician =
+                mock(Technician.class);
+
+        AppUser appUser =
+                mock(AppUser.class);
+
+        Authentication authentication =
+                mock(Authentication.class);
+
+        MaintenanceTask task =
+                new MaintenanceTask();
+
+        when(
+                authentication.getName()
+        ).thenReturn(
+                "technician"
+        );
+
+        when(
+                appUserRepository.findByUsername(
+                        "technician"
+                )
+        ).thenReturn(
+                Optional.of(appUser)
+        );
+
+        when(
+                appUser.getTechnician()
+        ).thenReturn(
+                technician
+        );
+
+        when(
+                technician.getId()
+        ).thenReturn(
+                technicianId
+        );
+
+        when(
+                maintenanceTaskService
+                        .updateAssignedTaskStatus(
+                                taskId,
+                                technicianId,
+                                status
+                        )
+        ).thenReturn(
+                task
+        );
+
+        MaintenanceTaskController controller =
+                new MaintenanceTaskController(
+                        maintenanceTaskService,
+                        appUserRepository
+                );
+
+        MaintenanceTask result =
+                controller.updateMyTaskStatus(
+                        taskId,
+                        status,
+                        authentication
+                );
+
+        assertSame(
+                task,
+                result
+        );
+
+        verify(
+                maintenanceTaskService
+        ).updateAssignedTaskStatus(
+                taskId,
+                technicianId,
+                status
+        );
+    }
+
 }

@@ -74,6 +74,37 @@ public class MaintenanceTaskService {
         return maintenanceTaskRepository.save(task);
     }
 
+    public MaintenanceTask updateAssignedTaskStatus(
+            Long taskId,
+            Long technicianId,
+            MaintenanceStatus status
+    ) {
+        MaintenanceTask task =
+                maintenanceTaskRepository.findById(taskId)
+                        .orElseThrow(() -> new IllegalArgumentException(
+                                "Maintenance task not found with id: " + taskId
+                        ));
+
+        Technician assignedTechnician =
+                task.getTechnician();
+
+        if (assignedTechnician == null) {
+            throw new IllegalStateException(
+                    "Maintenance task is not assigned to a technician."
+            );
+        }
+
+        if (!assignedTechnician.getId().equals(technicianId)) {
+            throw new IllegalStateException(
+                    "Maintenance task is not assigned to the authenticated technician."
+            );
+        }
+
+        task.setStatus(status);
+
+        return maintenanceTaskRepository.save(task);
+    }
+
     public MaintenanceTask assignTechnician(
             Long taskId,
             Long technicianId

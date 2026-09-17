@@ -365,6 +365,196 @@ public class MaintenanceTaskServiceTest {
     }
 
     @Test
+    void shouldUpdateAssignedTaskStatusForAssignedTechnician() {
+
+        Long taskId = 1L;
+        Long technicianId = 2L;
+
+        Technician technician =
+                new Technician();
+
+        technician.setId(
+                technicianId
+        );
+
+        MaintenanceTask task =
+                new MaintenanceTask();
+
+        task.setTechnician(
+                technician
+        );
+
+        task.setStatus(
+                MaintenanceStatus.OPEN
+        );
+
+        when(
+                maintenanceTaskRepository
+                        .findById(taskId)
+        ).thenReturn(
+                Optional.of(task)
+        );
+
+        when(
+                maintenanceTaskRepository
+                        .save(task)
+        ).thenReturn(
+                task
+        );
+
+        MaintenanceTask result =
+                maintenanceTaskService
+                        .updateAssignedTaskStatus(
+                                taskId,
+                                technicianId,
+                                MaintenanceStatus.IN_PROGRESS
+                        );
+
+        assertEquals(
+                MaintenanceStatus.IN_PROGRESS,
+                result.getStatus()
+        );
+
+        verify(
+                maintenanceTaskRepository
+        ).findById(
+                taskId
+        );
+
+        verify(
+                maintenanceTaskRepository
+        ).save(
+                task
+        );
+    }
+
+
+    @Test
+    void shouldRejectAssignedTaskStatusUpdateForDifferentTechnician() {
+
+        Long taskId = 1L;
+        Long assignedTechnicianId = 2L;
+        Long authenticatedTechnicianId = 3L;
+
+        Technician assignedTechnician =
+                new Technician();
+
+        assignedTechnician.setId(
+                assignedTechnicianId
+        );
+
+        MaintenanceTask task =
+                new MaintenanceTask();
+
+        task.setTechnician(
+                assignedTechnician
+        );
+
+        task.setStatus(
+                MaintenanceStatus.OPEN
+        );
+
+        when(
+                maintenanceTaskRepository
+                        .findById(taskId)
+        ).thenReturn(
+                Optional.of(task)
+        );
+
+        IllegalStateException exception =
+                assertThrows(
+                        IllegalStateException.class,
+                        () ->
+                                maintenanceTaskService
+                                        .updateAssignedTaskStatus(
+                                                taskId,
+                                                authenticatedTechnicianId,
+                                                MaintenanceStatus.IN_PROGRESS
+                                        )
+                );
+
+        assertEquals(
+                "Maintenance task is not assigned to the authenticated technician.",
+                exception.getMessage()
+        );
+
+        assertEquals(
+                MaintenanceStatus.OPEN,
+                task.getStatus()
+        );
+
+        verify(
+                maintenanceTaskRepository
+        ).findById(
+                taskId
+        );
+
+        verify(
+                maintenanceTaskRepository,
+                never()
+        ).save(
+                task
+        );
+    }
+
+
+    @Test
+    void shouldRejectAssignedTaskStatusUpdateForUnassignedTask() {
+
+        Long taskId = 1L;
+        Long technicianId = 2L;
+
+        MaintenanceTask task =
+                new MaintenanceTask();
+
+        task.setStatus(
+                MaintenanceStatus.OPEN
+        );
+
+        when(
+                maintenanceTaskRepository
+                        .findById(taskId)
+        ).thenReturn(
+                Optional.of(task)
+        );
+
+        IllegalStateException exception =
+                assertThrows(
+                        IllegalStateException.class,
+                        () ->
+                                maintenanceTaskService
+                                        .updateAssignedTaskStatus(
+                                                taskId,
+                                                technicianId,
+                                                MaintenanceStatus.IN_PROGRESS
+                                        )
+                );
+
+        assertEquals(
+                "Maintenance task is not assigned to a technician.",
+                exception.getMessage()
+        );
+
+        assertEquals(
+                MaintenanceStatus.OPEN,
+                task.getStatus()
+        );
+
+        verify(
+                maintenanceTaskRepository
+        ).findById(
+                taskId
+        );
+
+        verify(
+                maintenanceTaskRepository,
+                never()
+        ).save(
+                task
+        );
+    }
+
+    @Test
     void shouldAssignTechnicianToMaintenanceTask() {
 
         Long taskId = 1L;

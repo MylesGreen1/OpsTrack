@@ -221,6 +221,7 @@
               <th>Location</th>
               <th>Priority</th>
               <th>Status</th>
+              <th>Actions</th>
             </tr>
             </thead>
 
@@ -232,6 +233,8 @@
                 ) {
 
                 <tr>
+
+                  <!-- TASK -->
 
                   <td>
 
@@ -245,6 +248,9 @@
 
                   </td>
 
+
+                  <!-- AIRCRAFT -->
+
                   <td>
 
                     <div class="aircraft-name">
@@ -257,9 +263,15 @@
 
                   </td>
 
+
+                  <!-- LOCATION -->
+
                   <td>
                     {{ task.aircraft.location || 'Not assigned' }}
                   </td>
+
+
+                  <!-- PRIORITY -->
 
                   <td>
 
@@ -274,6 +286,9 @@
 
                   </td>
 
+
+                  <!-- STATUS -->
+
                   <td>
 
                     <span
@@ -282,10 +297,61 @@
                       [class.status-progress]="task.status === 'IN_PROGRESS'"
                       [class.status-completed]="task.status === 'COMPLETED'"
                     >
-                      {{ task.status === 'IN_PROGRESS'
-                      ? 'IN PROGRESS'
-                      : task.status }}
+                      {{
+                        task.status === 'IN_PROGRESS'
+                          ? 'IN PROGRESS'
+                          : task.status
+                      }}
                     </span>
+
+                  </td>
+
+
+                  <!-- ACTIONS -->
+
+                  <td>
+
+                    <div class="task-actions">
+
+                      @if (task.status === 'OPEN') {
+
+                        <button
+                          type="button"
+                          class="task-action-button start-button"
+                          (click)="updateTaskStatus(
+                            task,
+                            'IN_PROGRESS'
+                          )"
+                        >
+                          Start Task
+                        </button>
+
+                      }
+
+                      @else if (task.status === 'IN_PROGRESS') {
+
+                        <button
+                          type="button"
+                          class="task-action-button complete-button"
+                          (click)="updateTaskStatus(
+                            task,
+                            'COMPLETED'
+                          )"
+                        >
+                          Complete Task
+                        </button>
+
+                      }
+
+                      @else {
+
+                        <span class="task-complete-label">
+                          Completed
+                        </span>
+
+                      }
+
+                    </div>
 
                   </td>
 

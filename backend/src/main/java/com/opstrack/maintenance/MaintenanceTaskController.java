@@ -60,6 +60,42 @@ public class MaintenanceTaskController {
                 );
     }
 
+    @PatchMapping("/my-tasks/{taskId}/status")
+    public MaintenanceTask updateMyTaskStatus(
+            @PathVariable Long taskId,
+            @RequestParam MaintenanceStatus status,
+            Authentication authentication
+    ) {
+
+        AppUser appUser =
+                appUserRepository
+                        .findByUsername(
+                                authentication.getName()
+                        )
+                        .orElseThrow(
+                                () -> new IllegalArgumentException(
+                                        "Authenticated user not found."
+                                )
+                        );
+
+        Technician technician =
+                appUser.getTechnician();
+
+        if (technician == null) {
+            throw new IllegalStateException(
+                    "Authenticated user is not linked " +
+                            "to a technician record."
+            );
+        }
+
+        return maintenanceTaskService
+                .updateAssignedTaskStatus(
+                        taskId,
+                        technician.getId(),
+                        status
+                );
+    }
+
     @PostMapping
     public MaintenanceTask createTask(
             @RequestBody MaintenanceTask task

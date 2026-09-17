@@ -122,6 +122,22 @@ export class MaintenanceTaskService {
     );
   }
 
+  updateMyTaskStatus(
+    taskId: number,
+    status: MaintenanceStatus
+  ): Observable<MaintenanceTask> {
+
+    return this.http.patch<MaintenanceTask>(
+      `${this.apiUrl}/my-tasks/${taskId}/status`,
+      null,
+      {
+        params: {
+          status
+        }
+      }
+    );
+  }
+
   assignTechnician(
     taskId: number,
     technicianId: number

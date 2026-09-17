@@ -7,6 +7,7 @@ import {
 import { RouterLink } from '@angular/router';
 
 import {
+  MaintenanceStatus,
   MaintenanceTask,
   MaintenanceTaskService
 } from '../maintenance/maintenance-task.service';
@@ -80,6 +81,53 @@ export class MyTasks implements OnInit {
       });
   }
 
+// =========================
+// UPDATE ASSIGNED TASK STATUS
+// =========================
+
+  updateTaskStatus(
+    task: MaintenanceTask,
+    status: MaintenanceStatus
+  ): void {
+
+    this.errorMessage = '';
+
+    this.maintenanceTaskService
+      .updateMyTaskStatus(
+        task.id,
+        status
+      )
+      .subscribe({
+
+        next: (updatedTask) => {
+
+          this.maintenanceTasks =
+            this.maintenanceTasks.map(
+              existingTask =>
+                existingTask.id === updatedTask.id
+                  ? updatedTask
+                  : existingTask
+            );
+
+          this.changeDetectorRef
+            .markForCheck();
+        },
+
+        error: (error) => {
+
+          console.error(
+            'Error updating assigned task status:',
+            error
+          );
+
+          this.errorMessage =
+            'Unable to update the task status. Please try again.';
+
+          this.changeDetectorRef
+            .markForCheck();
+        }
+      });
+  }
 
   // =========================
   // SUMMARY COUNTS
