@@ -1,18 +1,19 @@
 package com.opstrack.security;
 
-import com.opstrack.inspection.InspectionController;
 import com.opstrack.inspection.InspectionService;
+import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -32,14 +33,17 @@ public class SecurityConfigTest {
 
     @Test
     void shouldRejectUnauthenticatedUser() throws Exception {
+
         mockMvc.perform(
                         get("/api/inspections/maintenance-task/1")
                 )
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
     }
 
     @Test
-    void shouldRejectTechnicianFromInspectionEndpoint() throws Exception {
+    void shouldRejectTechnicianFromInspectionEndpoint()
+            throws Exception {
+
         mockMvc.perform(
                         get("/api/inspections/maintenance-task/1")
                                 .with(
@@ -65,12 +69,15 @@ public class SecurityConfigTest {
     }
 
     @Test
-    void shouldAuthenticateRealQaInspectorWithHttpBasic() throws Exception {
+    void shouldAuthenticateQaInspectorWithSession()
+            throws Exception {
+
         String username = "qa-login-test";
         String password = "Password123!";
 
         AppUser existingUser =
-                appUserRepository.findByUsername(username)
+                appUserRepository
+                        .findByUsername(username)
                         .orElse(null);
 
         if (existingUser != null) {
@@ -83,13 +90,32 @@ public class SecurityConfigTest {
                 Role.QA_INSPECTOR
         );
 
+        MvcResult loginResult =
+                mockMvc.perform(
+                                post("/api/auth/login")
+                                        .contentType("application/json")
+                                        .content(
+                                                """
+                                                {
+                                                  "username": "qa-login-test",
+                                                  "password": "Password123!"
+                                                }
+                                                """
+                                        )
+                        )
+                        .andExpect(status().isOk())
+                        .andReturn();
+
+        HttpSession session =
+                loginResult
+                        .getRequest()
+                        .getSession(false);
+
         mockMvc.perform(
                         get("/api/inspections/maintenance-task/1")
-                                .with(
-                                        httpBasic(
-                                                username,
-                                                password
-                                        )
+                                .session(
+                                        (org.springframework.mock.web.MockHttpSession)
+                                                session
                                 )
                 )
                 .andExpect(status().isOk());
