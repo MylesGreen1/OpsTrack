@@ -1,0 +1,830 @@
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.aircraft-page {
+  min-height: 100vh;
+  background: #f4f6f8;
+  color: #0f172a;
+  display: flex;
+  flex-direction: column;
+}
+
+/* =========================
+   HEADER
+   ========================= */
+
+.app-header {
+  background: #203247;
+  color: white;
+  border-bottom: 4px solid #91a9c1;
+}
+
+.header-content {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 32px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 30px;
+}
+
+.app-header h1 {
+  margin: 0 0 4px;
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.app-header p {
+  margin: 0;
+  font-size: 16px;
+  color: #e5edf5;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dashboard-link {
+  color: white;
+  text-decoration: none;
+  border: 1px solid #8299b0;
+  border-radius: 6px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.dashboard-link:hover {
+  background: #2b4159;
+  border-color: #b3c3d3;
+}
+
+.logout-button {
+  border: 1px solid #8299b0;
+  border-radius: 6px;
+  background: transparent;
+  color: white;
+  padding: 10px 16px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.logout-button:hover {
+  background: #2b4159;
+  border-color: #b3c3d3;
+}
+
+/* =========================
+   MAIN PAGE
+   ========================= */
+
+.aircraft-container {
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 40px 0 60px;
+  flex: 1;
+}
+
+/* =========================
+   PAGE HEADING
+   ========================= */
+
+.page-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 30px;
+  margin-bottom: 32px;
+}
+
+.section-label {
+  margin: 0 0 8px;
+  color: #496d91;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+}
+
+.page-heading h2 {
+  margin: 0;
+  font-size: 32px;
+  line-height: 1.2;
+}
+
+.page-description {
+  max-width: 650px;
+  margin: 10px 0 0;
+  color: #526579;
+  line-height: 1.6;
+}
+
+.primary-button {
+  border: none;
+  border-radius: 6px;
+  background: #203247;
+  color: white;
+  padding: 12px 18px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.primary-button:hover:not(:disabled) {
+  background: #2e4864;
+  transform: translateY(-1px);
+}
+
+.primary-button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* =========================
+   SUMMARY CARDS
+   ========================= */
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 42px;
+}
+
+.summary-card {
+  min-height: 130px;
+  background: white;
+  border: 1px solid #d8e0e8;
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+}
+
+.summary-label {
+  color: #526579;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.summary-card strong {
+  display: block;
+  margin: 12px 0 8px;
+  color: #13263c;
+  font-size: 28px;
+  line-height: 1;
+}
+
+.summary-description {
+  margin-top: auto;
+  color: #7a8b9d;
+  font-size: 13px;
+}
+
+/* =========================
+   AIRCRAFT RECORDS
+   ========================= */
+
+.aircraft-section {
+  background: white;
+  border: 1px solid #d8e0e8;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+  overflow: hidden;
+}
+
+.section-header {
+  padding: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 30px;
+  border-bottom: 1px solid #d8e0e8;
+}
+
+.section-header h2 {
+  margin: 0;
+  font-size: 24px;
+}
+
+/* =========================
+   SEARCH / FILTER
+   ========================= */
+
+.table-actions {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+}
+
+.search-box,
+.filter-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.search-box span,
+.filter-box span {
+  color: #526579;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.search-box input,
+.filter-box select {
+  height: 40px;
+  border: 1px solid #cbd5df;
+  border-radius: 6px;
+  background: white;
+  color: #17283b;
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+}
+
+.search-box input {
+  width: 280px;
+  padding: 0 12px;
+}
+
+.filter-box select {
+  min-width: 170px;
+  padding: 0 32px 0 12px;
+  cursor: pointer;
+}
+
+.search-box input:focus,
+.filter-box select:focus {
+  border-color: #52779c;
+  box-shadow: 0 0 0 3px rgba(82, 119, 156, 0.12);
+}
+
+/* =========================
+   TABLE
+   ========================= */
+
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.aircraft-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 900px;
+}
+
+.aircraft-table thead {
+  background: #edf2f6;
+}
+
+.aircraft-table th {
+  padding: 14px 18px;
+  text-align: left;
+  color: #43566b;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  border-bottom: 1px solid #d8e0e8;
+}
+
+.aircraft-table td {
+  padding: 16px 18px;
+  color: #33475b;
+  font-size: 14px;
+  border-bottom: 1px solid #e5eaf0;
+  vertical-align: middle;
+}
+
+.aircraft-table tbody tr:not(.empty-row):hover {
+  background: #f8fafc;
+}
+
+.action-placeholder {
+  color: #98a2b3;
+}
+
+/* =========================
+   TABLE ACTIONS
+   ========================= */
+
+.action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.edit-button,
+.delete-button {
+  border-radius: 6px;
+  padding: 7px 12px;
+
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.edit-button {
+  border: 1px solid #91a9c1;
+
+  background: #f8fafc;
+  color: #203247;
+}
+
+.edit-button:hover {
+  background: #203247;
+  border-color: #203247;
+  color: white;
+
+  transform: translateY(-1px);
+}
+
+.delete-button {
+  border: 1px solid #f0b4ae;
+
+  background: #fff7f6;
+  color: #b42318;
+}
+
+.delete-button:hover {
+  background: #b42318;
+  border-color: #b42318;
+  color: white;
+
+  transform: translateY(-1px);
+}
+
+.edit-button:focus-visible,
+.delete-button:focus-visible {
+  outline: 3px solid rgba(82, 119, 156, 0.25);
+  outline-offset: 2px;
+}
+
+/* =========================
+   STATUS BADGES
+   ========================= */
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.status-mission-capable {
+  background: #ecfdf3;
+  color: #027a48;
+  border: 1px solid #abefc6;
+}
+
+.status-partially-capable {
+  background: #fffaeb;
+  color: #b54708;
+  border: 1px solid #fedf89;
+}
+
+.status-non-mission-capable {
+  background: #fef3f2;
+  color: #b42318;
+  border: 1px solid #fecdca;
+}
+
+.status-maintenance {
+  background: #eff8ff;
+  color: #175cd3;
+  border: 1px solid #b2ddff;
+}
+
+/* =========================
+   EMPTY TABLE STATE
+   ========================= */
+
+.empty-row td {
+  padding: 0;
+}
+
+.empty-state {
+  min-height: 280px;
+  padding: 50px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.empty-icon {
+  width: 54px;
+  height: 54px;
+  margin-bottom: 16px;
+  border-radius: 8px;
+  background: #e7eef5;
+  color: #203247;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 25px;
+}
+
+.empty-state h3 {
+  margin: 0 0 8px;
+  color: #13263c;
+  font-size: 18px;
+}
+
+.empty-state p {
+  max-width: 470px;
+  margin: 0;
+  color: #718296;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* =========================
+   MODAL
+   ========================= */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 24px;
+
+  background: rgba(15, 23, 42, 0.65);
+}
+
+.aircraft-modal {
+  width: 100%;
+  max-width: 700px;
+  max-height: calc(100vh - 48px);
+
+  overflow-y: auto;
+
+  background: white;
+  border-radius: 10px;
+
+  box-shadow:
+    0 24px 60px rgba(15, 23, 42, 0.3);
+}
+
+.modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+
+  padding: 24px 28px;
+
+  border-bottom: 1px solid #d8e0e8;
+}
+
+.modal-header h2 {
+  margin: 0;
+  color: #13263c;
+  font-size: 26px;
+}
+
+.modal-close-button {
+  width: 38px;
+  height: 38px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+  border-radius: 6px;
+
+  background: #eef2f6;
+  color: #33475b;
+
+  font-size: 24px;
+  line-height: 1;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.modal-close-button:hover:not(:disabled) {
+  background: #dde5ed;
+  color: #13263c;
+}
+
+.modal-close-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* =========================
+   ADD AIRCRAFT FORM
+   ========================= */
+
+.aircraft-form {
+  padding: 28px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.aircraft-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.aircraft-form label > span {
+  color: #344054;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.aircraft-form input,
+.aircraft-form select,
+.aircraft-form textarea {
+  width: 100%;
+
+  border: 1px solid #cbd5df;
+  border-radius: 6px;
+
+  background: white;
+  color: #17283b;
+
+  font-family: inherit;
+  font-size: 14px;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.aircraft-form input,
+.aircraft-form select {
+  height: 42px;
+  padding: 0 12px;
+}
+
+.aircraft-form select {
+  cursor: pointer;
+}
+
+.aircraft-form textarea {
+  min-height: 110px;
+  padding: 12px;
+  resize: vertical;
+}
+
+.aircraft-form input:focus,
+.aircraft-form select:focus,
+.aircraft-form textarea:focus {
+  border-color: #52779c;
+  box-shadow: 0 0 0 3px rgba(82, 119, 156, 0.12);
+}
+
+.notes-field {
+  margin-top: 20px;
+}
+
+.form-error-message {
+  margin-top: 20px;
+
+  padding: 12px 14px;
+
+  border: 1px solid #fecdca;
+  border-radius: 6px;
+
+  background: #fef3f2;
+  color: #b42318;
+
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* =========================
+   MODAL ACTIONS
+   ========================= */
+
+.modal-actions {
+  margin-top: 28px;
+
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.secondary-button {
+  border: 1px solid #cbd5df;
+  border-radius: 6px;
+
+  background: white;
+  color: #344054;
+
+  padding: 12px 18px;
+
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.secondary-button:hover:not(:disabled) {
+  background: #f8fafc;
+  border-color: #98a2b3;
+}
+
+.secondary-button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* =========================
+   FOOTER
+   ========================= */
+
+.app-footer {
+  margin-top: auto;
+  background: #e8edf2;
+  border-top: 1px solid #d5dde5;
+  padding: 22px;
+  text-align: center;
+}
+
+.app-footer p {
+  margin: 0;
+  color: #526579;
+  font-size: 13px;
+}
+
+/* =========================
+   RESPONSIVE DESIGN
+   ========================= */
+
+@media (max-width: 1180px) {
+  .header-content,
+  .aircraft-container {
+    width: calc(100% - 48px);
+  }
+}
+
+@media (max-width: 900px) {
+  .summary-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .section-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .table-actions {
+    width: 100%;
+  }
+
+  .search-box {
+    flex: 1;
+  }
+
+  .search-box input {
+    width: 100%;
+  }
+}
+
+@media (max-width: 700px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 650px) {
+  .header-content {
+    padding: 24px 0;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .header-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .dashboard-link,
+  .logout-button {
+    flex: 1;
+    text-align: center;
+  }
+
+  .app-header h1 {
+    font-size: 28px;
+  }
+
+  .aircraft-container {
+    padding-top: 30px;
+  }
+
+  .page-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .primary-button {
+    width: 100%;
+  }
+
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .table-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .filter-box select {
+    width: 100%;
+  }
+
+  .section-header {
+    padding: 20px;
+  }
+
+  .modal-backdrop {
+    padding: 12px;
+    align-items: flex-start;
+  }
+
+  .aircraft-modal {
+    max-height: calc(100vh - 24px);
+  }
+
+  .modal-header {
+    padding: 20px;
+  }
+
+  .aircraft-form {
+    padding: 20px;
+  }
+
+  .modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .modal-actions .primary-button,
+  .modal-actions .secondary-button {
+    width: 100%;
+  }
+}

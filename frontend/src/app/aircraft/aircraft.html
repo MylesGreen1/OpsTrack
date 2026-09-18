@@ -1,0 +1,637 @@
+<div class="aircraft-page">
+
+  <header class="app-header">
+
+    <div class="header-content">
+
+      <div>
+
+        <h1>OpsTrack</h1>
+
+        <p>
+          Aircraft Maintenance & Operations
+          Management System
+        </p>
+
+      </div>
+
+      <div class="header-actions">
+
+        <a
+          class="dashboard-link"
+          routerLink="/"
+        >
+          ← Dashboard
+        </a>
+
+        <button
+          class="logout-button"
+          type="button"
+          (click)="logout()"
+        >
+          Log Out
+        </button>
+
+      </div>
+
+    </div>
+
+  </header>
+
+
+  <main class="aircraft-container">
+
+    <section class="page-heading">
+
+      <div>
+
+        <p class="section-label">
+          FLEET MANAGEMENT
+        </p>
+
+        <h2>
+          Aircraft
+        </h2>
+
+        <p class="page-description">
+          View and manage aircraft records,
+          operational status, and maintenance
+          information.
+        </p>
+
+      </div>
+
+      <button
+        class="primary-button"
+        type="button"
+        (click)="openAddAircraftForm()"
+      >
+        + Add Aircraft
+      </button>
+
+    </section>
+
+
+    <section class="summary-grid">
+
+      <div class="summary-card">
+
+        <span class="summary-label">
+          Total Aircraft
+        </span>
+
+        <strong>
+          {{ totalAircraft }}
+        </strong>
+
+        <span class="summary-description">
+          Fleet records
+        </span>
+
+      </div>
+
+
+      <div class="summary-card">
+
+        <span class="summary-label">
+          Mission Capable
+        </span>
+
+        <strong>
+          {{ missionCapableCount }}
+        </strong>
+
+        <span class="summary-description">
+          Available aircraft
+        </span>
+
+      </div>
+
+
+      <div class="summary-card">
+
+        <span class="summary-label">
+          In Maintenance
+        </span>
+
+        <strong>
+          {{ inMaintenanceCount }}
+        </strong>
+
+        <span class="summary-description">
+          Active maintenance
+        </span>
+
+      </div>
+
+
+      <div class="summary-card">
+
+        <span class="summary-label">
+          Non-Mission Capable
+        </span>
+
+        <strong>
+          {{ nonMissionCapableCount }}
+        </strong>
+
+        <span class="summary-description">
+          Unavailable aircraft
+        </span>
+
+      </div>
+
+    </section>
+
+
+    <section class="aircraft-section">
+
+      <div class="section-header">
+
+        <div>
+
+          <p class="section-label">
+            AIRCRAFT RECORDS
+          </p>
+
+          <h2>
+            Fleet
+          </h2>
+
+        </div>
+
+
+        <div class="table-actions">
+
+          <label class="search-box">
+
+            <span>
+              Search
+            </span>
+
+            <input
+              type="search"
+              name="searchTerm"
+              [(ngModel)]="searchTerm"
+              placeholder="Tail number, aircraft type, or location"
+            >
+
+          </label>
+
+
+          <label class="filter-box">
+
+            <span>
+              Status
+            </span>
+
+            <select
+              name="statusFilter"
+              [(ngModel)]="statusFilter"
+            >
+
+              <option value="">
+                All Statuses
+              </option>
+
+              <option value="MISSION_CAPABLE">
+                Mission Capable
+              </option>
+
+              <option value="PARTIALLY_MISSION_CAPABLE">
+                Partially Mission Capable
+              </option>
+
+              <option value="NON_MISSION_CAPABLE">
+                Non-Mission Capable
+              </option>
+
+              <option value="IN_MAINTENANCE">
+                In Maintenance
+              </option>
+
+            </select>
+
+          </label>
+
+        </div>
+
+      </div>
+
+
+      <div class="table-wrapper">
+
+        <table class="aircraft-table">
+
+          <thead>
+
+          <tr>
+            <th>Tail Number</th>
+            <th>Aircraft Type</th>
+            <th>Status</th>
+            <th>Location</th>
+            <th>Notes</th>
+            <th>Actions</th>
+          </tr>
+
+          </thead>
+
+
+          <tbody>
+
+            @if (loading) {
+
+              <tr class="empty-row">
+
+                <td colspan="6">
+
+                  <div class="empty-state">
+
+                    <div class="empty-icon">
+                      ✈
+                    </div>
+
+                    <h3>
+                      Loading aircraft...
+                    </h3>
+
+                    <p>
+                      Retrieving fleet records
+                      from OpsTrack.
+                    </p>
+
+                  </div>
+
+                </td>
+
+              </tr>
+
+            } @else if (errorMessage) {
+
+              <tr class="empty-row">
+
+                <td colspan="6">
+
+                  <div class="empty-state">
+
+                    <div class="empty-icon">
+                      !
+                    </div>
+
+                    <h3>
+                      Unable to load aircraft
+                    </h3>
+
+                    <p>
+                      {{ errorMessage }}
+                    </p>
+
+                  </div>
+
+                </td>
+
+              </tr>
+
+            } @else if (filteredAircraft.length === 0) {
+
+              <tr class="empty-row">
+
+                <td colspan="6">
+
+                  <div class="empty-state">
+
+                    <div class="empty-icon">
+                      ✈
+                    </div>
+
+                    <h3>
+                      No aircraft records found
+                    </h3>
+
+                    <p>
+                      Add an aircraft or change your
+                      search and filter settings.
+                    </p>
+
+                  </div>
+
+                </td>
+
+              </tr>
+
+            } @else {
+
+              @for (
+                record of filteredAircraft;
+                track record.id
+                ) {
+
+                <tr>
+
+                  <td>
+                    <strong>
+                      {{ record.tailNumber }}
+                    </strong>
+                  </td>
+
+                  <td>
+                    {{ record.aircraftType }}
+                  </td>
+
+                  <td>
+
+                  <span
+                    class="status-badge"
+                    [class.status-mission-capable]="record.status === 'MISSION_CAPABLE'"
+                    [class.status-partially-capable]="record.status === 'PARTIALLY_MISSION_CAPABLE'"
+                    [class.status-non-mission-capable]="record.status === 'NON_MISSION_CAPABLE'"
+                    [class.status-maintenance]="record.status === 'IN_MAINTENANCE'"
+                  >
+
+                    @if (
+                      record.status ===
+                      'MISSION_CAPABLE'
+                      ) {
+                      Mission Capable
+                    }
+
+                    @else if (
+                      record.status ===
+                      'PARTIALLY_MISSION_CAPABLE'
+                      ) {
+                      Partially Mission Capable
+                    }
+
+                    @else if (
+                      record.status ===
+                      'NON_MISSION_CAPABLE'
+                      ) {
+                      Non-Mission Capable
+                    }
+
+                    @else {
+                      In Maintenance
+                    }
+
+                  </span>
+
+                  </td>
+
+                  <td>
+                    {{ record.location }}
+                  </td>
+
+                  <td>
+                    {{ record.notes || 'No notes' }}
+                  </td>
+
+                  <td>
+                    <div class="action-buttons">
+
+                      <button
+                        class="edit-button"
+                        type="button"
+                        (click)="openEditAircraftForm(record)"
+                      >
+                        Edit
+                      </button>
+
+                      <button
+                        class="delete-button"
+                        type="button"
+                        (click)="deleteAircraft(record)"
+                      >
+                        Delete
+                      </button>
+
+                    </div>
+                  </td>
+
+                </tr>
+
+              }
+
+            }
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <footer class="app-footer">
+
+    <p>
+      OpsTrack Maintenance Operations
+      Management System
+    </p>
+
+  </footer>
+
+
+  @if (showAddAircraftForm) {
+
+    <div class="modal-backdrop">
+
+      <div class="aircraft-modal">
+
+        <div class="modal-header">
+
+          <div>
+
+            <p class="section-label">
+              FLEET MANAGEMENT
+            </p>
+
+            <h2>
+
+              @if (editingAircraftId === null) {
+                Add Aircraft
+              } @else {
+                Edit Aircraft
+              }
+
+            </h2>
+
+          </div>
+
+          <button
+            class="modal-close-button"
+            type="button"
+            (click)="closeAddAircraftForm()"
+            [disabled]="saving"
+            aria-label="Close"
+          >
+            ×
+          </button>
+
+        </div>
+
+
+        <form
+          class="aircraft-form"
+          (ngSubmit)="saveAircraft()"
+        >
+
+          <div class="form-grid">
+
+            <label>
+
+              <span>
+                Tail Number
+              </span>
+
+              <input
+                type="text"
+                name="tailNumber"
+                [(ngModel)]="newAircraft.tailNumber"
+                placeholder="Example: N123OT"
+              >
+
+            </label>
+
+
+            <label>
+
+              <span>
+                Aircraft Type
+              </span>
+
+              <input
+                type="text"
+                name="aircraftType"
+                [(ngModel)]="newAircraft.aircraftType"
+                placeholder="Example: C-130J"
+              >
+
+            </label>
+
+
+            <label>
+
+              <span>
+                Status
+              </span>
+
+              <select
+                name="status"
+                [(ngModel)]="newAircraft.status"
+              >
+
+                <option value="MISSION_CAPABLE">
+                  Mission Capable
+                </option>
+
+                <option value="PARTIALLY_MISSION_CAPABLE">
+                  Partially Mission Capable
+                </option>
+
+                <option value="NON_MISSION_CAPABLE">
+                  Non-Mission Capable
+                </option>
+
+                <option value="IN_MAINTENANCE">
+                  In Maintenance
+                </option>
+
+              </select>
+
+            </label>
+
+
+            <label>
+
+              <span>
+                Location
+              </span>
+
+              <input
+                type="text"
+                name="location"
+                [(ngModel)]="newAircraft.location"
+                placeholder="Example: Hangar 3"
+              >
+
+            </label>
+
+          </div>
+
+
+          <label class="notes-field">
+
+            <span>
+              Notes
+            </span>
+
+            <textarea
+              name="notes"
+              [(ngModel)]="newAircraft.notes"
+              rows="4"
+              placeholder="Optional aircraft notes"
+            ></textarea>
+
+          </label>
+
+
+          @if (formErrorMessage) {
+
+            <div class="form-error-message">
+              {{ formErrorMessage }}
+            </div>
+
+          }
+
+
+          <div class="modal-actions">
+
+            <button
+              class="secondary-button"
+              type="button"
+              (click)="closeAddAircraftForm()"
+              [disabled]="saving"
+            >
+              Cancel
+            </button>
+
+            <button
+              class="primary-button"
+              type="submit"
+              [disabled]="saving"
+            >
+
+              @if (saving) {
+
+                @if (editingAircraftId === null) {
+                  Adding Aircraft...
+                } @else {
+                  Saving Changes...
+                }
+
+              } @else {
+
+                @if (editingAircraftId === null) {
+                  Add Aircraft
+                } @else {
+                  Save Changes
+                }
+
+              }
+
+            </button>
+
+          </div>
+
+        </form>
+
+      </div>
+
+    </div>
+
+  }
+
+</div>

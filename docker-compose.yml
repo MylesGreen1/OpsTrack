@@ -1,0 +1,41 @@
+services:
+  database:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: opstrack
+      POSTGRES_USER: opstrack
+      POSTGRES_PASSWORD: opstrack_dev
+    volumes:
+      - opstrack_postgres:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U opstrack -d opstrack"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: .
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      DB_URL: jdbc:postgresql://database:5432/opstrack
+      DB_USERNAME: opstrack
+      DB_PASSWORD: opstrack_dev
+      CORS_ALLOWED_ORIGINS: http://localhost:4200,http://localhost:8080
+      OPSTRACK_ADMIN_PASSWORD: ${OPSTRACK_ADMIN_PASSWORD}
+      OPSTRACK_QA_PASSWORD: ${OPSTRACK_QA_PASSWORD}
+      OPSTRACK_TECHNICIAN_PASSWORD: ${OPSTRACK_TECHNICIAN_PASSWORD}
+    ports:
+      - "8081:8081"
+    depends_on:
+      database:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+
+volumes:
+  opstrack_postgres:

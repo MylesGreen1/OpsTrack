@@ -1,0 +1,374 @@
+<div class="page-shell">
+
+  <!-- ========================= -->
+  <!-- HEADER -->
+  <!-- ========================= -->
+
+  <header class="page-header">
+
+    <div class="brand-section">
+      <div class="brand-mark">
+        OT
+      </div>
+
+      <div>
+        <h1>OpsTrack</h1>
+        <p>Maintenance Operations Management</p>
+      </div>
+    </div>
+
+    <nav class="header-nav">
+      <a routerLink="/">
+        Dashboard
+      </a>
+
+      <a routerLink="/maintenance">
+        Maintenance
+      </a>
+    </nav>
+
+  </header>
+
+
+  <!-- ========================= -->
+  <!-- PAGE CONTENT -->
+  <!-- ========================= -->
+
+  <main class="page-content">
+
+    <section class="page-title-section">
+
+      <div>
+        <p class="eyebrow">
+          TECHNICIAN WORK CENTER
+        </p>
+
+        <h2>My Assigned Tasks</h2>
+
+        <p class="page-description">
+          Maintenance tasks currently assigned to your
+          technician account.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        class="refresh-button"
+        (click)="loadMyTasks()"
+        [disabled]="loading"
+      >
+        {{ loading ? 'Loading...' : 'Refresh Tasks' }}
+      </button>
+
+    </section>
+
+
+    <!-- ========================= -->
+    <!-- SUMMARY CARDS -->
+    <!-- ========================= -->
+
+    <section class="summary-grid">
+
+      <article class="summary-card">
+        <span class="summary-label">
+          Total Assigned
+        </span>
+
+        <strong>
+          {{ totalTasks }}
+        </strong>
+      </article>
+
+      <article class="summary-card">
+        <span class="summary-label">
+          Open
+        </span>
+
+        <strong>
+          {{ openTasks }}
+        </strong>
+      </article>
+
+      <article class="summary-card">
+        <span class="summary-label">
+          In Progress
+        </span>
+
+        <strong>
+          {{ inProgressTasks }}
+        </strong>
+      </article>
+
+      <article class="summary-card">
+        <span class="summary-label">
+          Completed
+        </span>
+
+        <strong>
+          {{ completedTasks }}
+        </strong>
+      </article>
+
+    </section>
+
+
+    <!-- ========================= -->
+    <!-- ERROR MESSAGE -->
+    <!-- ========================= -->
+
+    @if (errorMessage) {
+
+      <section class="error-message">
+
+        <span>
+          {{ errorMessage }}
+        </span>
+
+        <button
+          type="button"
+          (click)="loadMyTasks()"
+        >
+          Try Again
+        </button>
+
+      </section>
+
+    }
+
+
+    <!-- ========================= -->
+    <!-- TASK PANEL -->
+    <!-- ========================= -->
+
+    <section class="task-panel">
+
+      <div class="panel-header">
+
+        <div>
+          <h3>Assigned Maintenance</h3>
+
+          <p>
+            Tasks assigned to your technician record.
+          </p>
+        </div>
+
+        <span class="task-count">
+          {{ totalTasks }} Tasks
+        </span>
+
+      </div>
+
+
+      <!-- ========================= -->
+      <!-- LOADING -->
+      <!-- ========================= -->
+
+      @if (loading) {
+
+        <div class="state-message">
+
+          <div class="loading-indicator"></div>
+
+          <h4>Loading assigned tasks</h4>
+
+          <p>
+            Retrieving your maintenance assignments.
+          </p>
+
+        </div>
+
+      }
+
+
+      <!-- ========================= -->
+      <!-- EMPTY STATE -->
+      <!-- ========================= -->
+
+      @else if (maintenanceTasks.length === 0) {
+
+        <div class="state-message">
+
+          <div class="empty-icon">
+            ✓
+          </div>
+
+          <h4>No assigned tasks</h4>
+
+          <p>
+            There are currently no maintenance tasks
+            assigned to your technician account.
+          </p>
+
+        </div>
+
+      }
+
+
+      <!-- ========================= -->
+      <!-- TASK TABLE -->
+      <!-- ========================= -->
+
+      @else {
+
+        <div class="table-wrapper">
+
+          <table>
+
+            <thead>
+            <tr>
+              <th>Task</th>
+              <th>Aircraft</th>
+              <th>Location</th>
+              <th>Priority</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+            </thead>
+
+            <tbody>
+
+              @for (
+                task of maintenanceTasks;
+                track task.id
+                ) {
+
+                <tr>
+
+                  <!-- TASK -->
+
+                  <td>
+
+                    <div class="task-title">
+                      {{ task.title }}
+                    </div>
+
+                    <div class="task-description">
+                      {{ task.description || 'No description provided.' }}
+                    </div>
+
+                  </td>
+
+
+                  <!-- AIRCRAFT -->
+
+                  <td>
+
+                    <div class="aircraft-name">
+                      {{ task.aircraft.tailNumber }}
+                    </div>
+
+                    <div class="aircraft-type">
+                      {{ task.aircraft.aircraftType }}
+                    </div>
+
+                  </td>
+
+
+                  <!-- LOCATION -->
+
+                  <td>
+                    {{ task.aircraft.location || 'Not assigned' }}
+                  </td>
+
+
+                  <!-- PRIORITY -->
+
+                  <td>
+
+                    <span
+                      class="badge"
+                      [class.priority-high]="task.priority === 'HIGH'"
+                      [class.priority-medium]="task.priority === 'MEDIUM'"
+                      [class.priority-low]="task.priority === 'LOW'"
+                    >
+                      {{ task.priority }}
+                    </span>
+
+                  </td>
+
+
+                  <!-- STATUS -->
+
+                  <td>
+
+                    <span
+                      class="badge"
+                      [class.status-open]="task.status === 'OPEN'"
+                      [class.status-progress]="task.status === 'IN_PROGRESS'"
+                      [class.status-completed]="task.status === 'COMPLETED'"
+                    >
+                      {{
+                        task.status === 'IN_PROGRESS'
+                          ? 'IN PROGRESS'
+                          : task.status
+                      }}
+                    </span>
+
+                  </td>
+
+
+                  <!-- ACTIONS -->
+
+                  <td>
+
+                    <div class="task-actions">
+
+                      @if (task.status === 'OPEN') {
+
+                        <button
+                          type="button"
+                          class="task-action-button start-button"
+                          (click)="updateTaskStatus(
+                            task,
+                            'IN_PROGRESS'
+                          )"
+                        >
+                          Start Task
+                        </button>
+
+                      }
+
+                      @else if (task.status === 'IN_PROGRESS') {
+
+                        <button
+                          type="button"
+                          class="task-action-button complete-button"
+                          (click)="updateTaskStatus(
+                            task,
+                            'COMPLETED'
+                          )"
+                        >
+                          Complete Task
+                        </button>
+
+                      }
+
+                      @else {
+
+                        <span class="task-complete-label">
+                          Completed
+                        </span>
+
+                      }
+
+                    </div>
+
+                  </td>
+
+                </tr>
+
+              }
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      }
+
+    </section>
+
+  </main>
+
+</div>
