@@ -1,22 +1,30 @@
 package com.opstrack.security;
 
 import com.opstrack.technician.Technician;
+import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.mock.web.MockHttpSession;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import org.springframework.security.core.Authentication;
 
 @WebMvcTest(AuthController.class)
 public class AuthControllerTest {
@@ -30,8 +38,12 @@ public class AuthControllerTest {
     @MockitoBean
     private AppUserRepository appUserRepository;
 
+    @MockitoBean
+    private AuthenticationManager authenticationManager;
+
     @Test
     void shouldRegisterUserWithoutAuthentication() throws Exception {
+
         AppUser appUser = new AppUser(
                 "tech3",
                 "encoded-password",
@@ -108,7 +120,8 @@ public class AuthControllerTest {
         AuthController authController =
                 new AuthController(
                         authService,
-                        appUserRepository
+                        appUserRepository,
+                        authenticationManager
                 );
 
         CurrentUserResponse response =
@@ -134,6 +147,119 @@ public class AuthControllerTest {
         assertEquals(
                 1L,
                 response.technicianId()
+        );
+    }
+
+    @Test
+    void shouldLoginAndCreateSession() throws Exception {
+
+        AppUser adminUser = new AppUser(
+                "admin",
+                "encoded-password",
+                Role.ADMIN,
+                true
+        );
+
+        Authentication authentication =
+                mock(Authentication.class);
+
+        when(
+                authentication.getName()
+        ).thenReturn("admin");
+
+        when(
+                authenticationManager.authenticate(
+                        any(UsernamePasswordAuthenticationToken.class)
+                )
+        ).thenReturn(authentication);
+
+        when(
+                appUserRepository.findByUsername(
+                        "admin"
+                )
+        ).thenReturn(
+                Optional.of(adminUser)
+        );
+
+        HttpSession session =
+                mockMvc.perform(
+                                post("/api/auth/login")
+                                        .contentType(
+                                                "application/json"
+                                        )
+                                        .content(
+                                                """
+                                                {
+                                                  "username": "admin",
+                                                  "password": "Password123!"
+                                                }
+                                                """
+                                        )
+                        )
+                        .andExpect(status().isOk())
+                        .andExpect(
+                                jsonPath("$.username")
+                                        .value("admin")
+                        )
+                        .andExpect(
+                                jsonPath("$.role")
+                                        .value("ADMIN")
+                        )
+                        .andExpect(
+                                jsonPath("$.enabled")
+                                        .value(true)
+                        )
+                        .andExpect(
+                                jsonPath("$.technicianId")
+                                        .doesNotExist()
+                        )
+                        .andReturn()
+                        .getRequest()
+                        .getSession(false);
+
+        assertNotNull(session);
+
+        Object securityContext =
+                session.getAttribute(
+                        HttpSessionSecurityContextRepository
+                                .SPRING_SECURITY_CONTEXT_KEY
+                );
+
+        assertNotNull(securityContext);
+
+        SecurityContext context =
+                (SecurityContext) securityContext;
+
+        assertEquals(
+                authentication,
+                context.getAuthentication()
+        );
+    }
+
+    @Test
+    void shouldLogoutAndInvalidateSession() throws Exception {
+
+        MockHttpSession session =
+                new MockHttpSession();
+
+        session.setAttribute(
+                HttpSessionSecurityContextRepository
+                        .SPRING_SECURITY_CONTEXT_KEY,
+                mock(SecurityContext.class)
+        );
+
+        mockMvc.perform(
+                        post("/api/auth/logout")
+                                .session(session)
+                )
+                .andExpect(status().isOk());
+
+        assertThrows(
+                IllegalStateException.class,
+                () -> session.getAttribute(
+                        HttpSessionSecurityContextRepository
+                                .SPRING_SECURITY_CONTEXT_KEY
+                )
         );
     }
 }

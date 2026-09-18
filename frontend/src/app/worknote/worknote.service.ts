@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../api.config';
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -37,7 +38,7 @@ export interface WorkNote {
 export class WorkNoteService {
 
   private readonly apiUrl =
-    'http://localhost:8081/api/work-notes';
+    `${API_BASE_URL}/api/work-notes`;
 
   constructor(private http: HttpClient) {}
 

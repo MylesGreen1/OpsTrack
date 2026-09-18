@@ -9,6 +9,8 @@ import { TechnicianComponent } from './technician/technician';
 import { InspectionComponent } from './inspection/inspection';
 import { WorkNoteComponent } from './worknote/worknote';
 import { MyTasks } from './my-tasks/my-tasks';
+import { PartsComponent } from './parts/parts';
+import { AuditComponent } from './audit/audit';
 
 import { authGuard } from './auth/auth.guard';
 import { roleGuard } from './auth/role.guard';
@@ -116,6 +118,18 @@ export const routes: Routes = [
         'TECHNICIAN'
       ]
     }
+  },
+  {
+    path: 'parts',
+    component: PartsComponent,
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['TECHNICIAN', 'SUPERVISOR', 'ADMIN'] }
+  },
+  {
+    path: 'audit',
+    component: AuditComponent,
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['ADMIN'] }
   },
   {
     path: '**',

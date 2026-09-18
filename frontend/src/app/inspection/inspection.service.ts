@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../api.config';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
@@ -30,7 +31,7 @@ export interface Inspection {
 export class InspectionService {
 
   private readonly apiUrl =
-    'http://localhost:8081/api/inspections';
+    `${API_BASE_URL}/api/inspections`;
 
   constructor(
     private readonly http: HttpClient

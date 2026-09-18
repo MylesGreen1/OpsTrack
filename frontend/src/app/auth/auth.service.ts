@@ -1,20 +1,10 @@
-import {
-  HttpClient,
-  HttpHeaders
-} from '@angular/common/http';
-
+import { API_BASE_URL } from '../api.config';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
-import {
-  Observable,
-  tap
-} from 'rxjs';
+import { Observable, tap } from 'rxjs';
 
-export type UserRole =
-  | 'TECHNICIAN'
-  | 'SUPERVISOR'
-  | 'QA_INSPECTOR'
-  | 'ADMIN';
+export type UserRole = 'TECHNICIAN' | 'SUPERVISOR' | 'QA_INSPECTOR' | 'ADMIN';
 
 export interface RegisterResponse {
   username: string;
@@ -29,191 +19,99 @@ export interface CurrentUser {
   technicianId: number | null;
 }
 
+export interface LoginRequest {
+  username: string;
+  password: string;
+}
+
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
+  private readonly backendUrl = API_BASE_URL;
 
-  private readonly backendUrl =
-    'http://localhost:8081';
+  private readonly usernameKey = 'opstrack_username';
 
-  private readonly usernameKey =
-    'opstrack_username';
+  private readonly roleKey = 'opstrack_role';
 
-  private readonly passwordKey =
-    'opstrack_password';
+  private readonly technicianIdKey = 'opstrack_technician_id';
 
-  private readonly roleKey =
-    'opstrack_role';
+  constructor(private readonly http: HttpClient) {}
 
-  private readonly technicianIdKey =
-    'opstrack_technician_id';
-
-  constructor(
-    private readonly http: HttpClient
-  ) {
+  register(username: string, password: string): Observable<RegisterResponse> {
+    return this.http.post<RegisterResponse>(`${this.backendUrl}/api/auth/register`, null, {
+      params: {
+        username,
+        password,
+      },
+    });
   }
 
-  register(
-    username: string,
-    password: string
-  ): Observable<RegisterResponse> {
-
-    return this.http.post<RegisterResponse>(
-      `${this.backendUrl}/api/auth/register`,
-      null,
-      {
-        params: {
-          username,
-          password
-        }
-      }
-    );
-  }
-
-  login(
-    username: string,
-    password: string
-  ): Observable<CurrentUser> {
-
-    const credentials =
-      `${username}:${password}`;
-
-    const encodedCredentials =
-      btoa(credentials);
-
-    const headers =
-      new HttpHeaders({
-        Authorization:
-          `Basic ${encodedCredentials}`
-      });
+  login(username: string, password: string): Observable<CurrentUser> {
+    const loginRequest: LoginRequest = {
+      username,
+      password,
+    };
 
     return this.http
-      .get<CurrentUser>(
-        `${this.backendUrl}/api/auth/me`,
-        { headers }
-      )
+      .post<CurrentUser>(`${this.backendUrl}/api/auth/login`, loginRequest, {
+        withCredentials: true,
+      })
       .pipe(
-        tap(currentUser => {
-
-          this.setCredentials(
-            username,
-            password,
-            currentUser.role,
-            currentUser.technicianId
-          );
-
-        })
+        tap((currentUser) => {
+          this.setUserSession(currentUser);
+        }),
       );
   }
 
   getCurrentUser(): Observable<CurrentUser> {
-
-    return this.http.get<CurrentUser>(
-      `${this.backendUrl}/api/auth/me`
-    );
+    return this.http.get<CurrentUser>(`${this.backendUrl}/api/auth/me`, {
+      withCredentials: true,
+    });
   }
 
-  setCredentials(
-    username: string,
-    password: string,
-    role: UserRole,
-    technicianId: number | null
-  ): void {
+  private setUserSession(currentUser: CurrentUser): void {
+    sessionStorage.setItem(this.usernameKey, currentUser.username);
 
-    sessionStorage.setItem(
-      this.usernameKey,
-      username
-    );
+    sessionStorage.setItem(this.roleKey, currentUser.role);
 
-    sessionStorage.setItem(
-      this.passwordKey,
-      password
-    );
-
-    sessionStorage.setItem(
-      this.roleKey,
-      role
-    );
-
-    if (technicianId !== null) {
-
-      sessionStorage.setItem(
-        this.technicianIdKey,
-        technicianId.toString()
-      );
-
+    if (currentUser.technicianId !== null) {
+      sessionStorage.setItem(this.technicianIdKey, currentUser.technicianId.toString());
     } else {
-
-      sessionStorage.removeItem(
-        this.technicianIdKey
-      );
+      sessionStorage.removeItem(this.technicianIdKey);
     }
   }
 
   clearCredentials(): void {
+    sessionStorage.removeItem(this.usernameKey);
 
-    sessionStorage.removeItem(
-      this.usernameKey
-    );
+    sessionStorage.removeItem(this.roleKey);
 
-    sessionStorage.removeItem(
-      this.passwordKey
-    );
+    sessionStorage.removeItem(this.technicianIdKey);
 
-    sessionStorage.removeItem(
-      this.roleKey
-    );
-
-    sessionStorage.removeItem(
-      this.technicianIdKey
-    );
+    // Clean up credentials left by the old
+    // Basic Authentication implementation.
+    sessionStorage.removeItem('opstrack_password');
   }
 
   hasCredentials(): boolean {
+    const username = sessionStorage.getItem(this.usernameKey);
 
-    const username =
-      sessionStorage.getItem(
-        this.usernameKey
-      );
+    const role = sessionStorage.getItem(this.roleKey);
 
-    const password =
-      sessionStorage.getItem(
-        this.passwordKey
-      );
-
-    const role =
-      sessionStorage.getItem(
-        this.roleKey
-      );
-
-    return (
-      !!username &&
-      !!password &&
-      !!role
-    );
+    return !!username && !!role;
   }
 
   getUsername(): string | null {
-
-    return sessionStorage.getItem(
-      this.usernameKey
-    );
+    return sessionStorage.getItem(this.usernameKey);
   }
 
   getRole(): UserRole | null {
-
-    return sessionStorage.getItem(
-      this.roleKey
-    ) as UserRole | null;
+    return sessionStorage.getItem(this.roleKey) as UserRole | null;
   }
 
   getTechnicianId(): number | null {
-
-    const technicianId =
-      sessionStorage.getItem(
-        this.technicianIdKey
-      );
+    const technicianId = sessionStorage.getItem(this.technicianIdKey);
 
     if (!technicianId) {
       return null;
@@ -222,48 +120,14 @@ export class AuthService {
     return Number(technicianId);
   }
 
-  hasRole(
-    ...roles: UserRole[]
-  ): boolean {
-
-    const currentRole =
-      this.getRole();
+  hasRole(...roles: UserRole[]): boolean {
+    const currentRole = this.getRole();
 
     if (!currentRole) {
       return false;
     }
 
-    return roles.includes(
-      currentRole
-    );
-  }
-
-  getAuthorizationHeader(): string | null {
-
-    const username =
-      sessionStorage.getItem(
-        this.usernameKey
-      );
-
-    const password =
-      sessionStorage.getItem(
-        this.passwordKey
-      );
-
-    if (
-      !username ||
-      !password
-    ) {
-      return null;
-    }
-
-    const credentials =
-      `${username}:${password}`;
-
-    const encodedCredentials =
-      btoa(credentials);
-
-    return `Basic ${encodedCredentials}`;
+    return roles.includes(currentRole);
   }
 
   logout(): void {

@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../api.config';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
@@ -25,7 +26,7 @@ export interface TechnicianRequest {
 export class TechnicianService {
 
   private readonly apiUrl =
-    'http://localhost:8081/api/technicians';
+    `${API_BASE_URL}/api/technicians`;
 
   constructor(
     private readonly http: HttpClient

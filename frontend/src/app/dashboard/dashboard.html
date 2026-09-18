@@ -155,6 +155,28 @@
         </a>
       }
 
+      @if (canViewParts) {
+        <a class="dashboard-card" routerLink="/parts">
+          <div class="card-icon">⚙</div>
+          <div class="card-content">
+            <h3>Parts Requests</h3>
+            <p>Request and track parts required for maintenance tasks.</p>
+            <span class="card-link">View Parts Requests →</span>
+          </div>
+        </a>
+      }
+
+      @if (canViewAudit) {
+        <a class="dashboard-card" routerLink="/audit">
+          <div class="card-icon">⌁</div>
+          <div class="card-content">
+            <h3>Audit Log</h3>
+            <p>Review recorded administrative and operational changes.</p>
+            <span class="card-link">View Audit History →</span>
+          </div>
+        </a>
+      }
+
     </section>
 
     <section class="status-section">

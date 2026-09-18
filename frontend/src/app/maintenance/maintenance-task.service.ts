@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../api.config';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
@@ -47,7 +48,7 @@ export interface MaintenanceTaskRequest {
 export class MaintenanceTaskService {
 
   private readonly apiUrl =
-    'http://localhost:8081/api/maintenance-tasks';
+    `${API_BASE_URL}/api/maintenance-tasks`;
 
   constructor(
     private readonly http: HttpClient
