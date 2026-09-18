@@ -286,6 +286,14 @@ export class Dashboard implements OnInit {
     );
   }
 
+  get canViewParts(): boolean {
+    return this.hasRole('TECHNICIAN', 'SUPERVISOR', 'ADMIN');
+  }
+
+  get canViewAudit(): boolean {
+    return this.hasRole('ADMIN');
+  }
+
   get totalAircraft(): number {
     return this.aircraft.length;
   }

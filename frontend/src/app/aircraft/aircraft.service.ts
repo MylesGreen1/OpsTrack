@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '../api.config';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
@@ -31,7 +32,7 @@ export interface AircraftRequest {
 export class AircraftService {
 
   private readonly apiUrl =
-    'http://localhost:8081/api/aircraft';
+    `${API_BASE_URL}/api/aircraft`;
 
   constructor(
     private readonly http: HttpClient

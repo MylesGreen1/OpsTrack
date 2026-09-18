@@ -1,0 +1,46 @@
+<div class="page"><header>
+  <div>
+    <h1>OpsTrack</h1>
+    <p>Administrative Audit History</p>
+  </div><a routerLink="/">Dashboard</a>
+</header>
+  <main>
+    <section class="title">
+      <div>
+        <span>ADMINISTRATION</span>
+        <h2>Audit Log</h2>
+        <p>Recorded write operations across OpsTrack APIs.</p>
+      </div>
+      <button (click)="load()">Refresh</button>
+    </section>@if(errorMessage) {
+    <div class="error">{{errorMessage}}
+    </div>}
+    <section class="panel">@if(loading){
+      <div class="empty">Loading audit history...
+      </div>}@else if(logs.length===0){
+      <div class="empty">No audit activity recorded yet.
+      </div>}@else{<div class="table-wrap">
+      <table>
+        <thead>
+        <tr>
+          <th>Time</th>
+          <th>User</th>
+          <th>Action</th>
+          <th>Resource</th>
+          <th>Result</th>
+        </tr>
+        </thead>
+        <tbody>@for(log of logs;track log.id){
+          <tr>
+            <td>{{log.createdAt | date:'medium'}}</td>
+            <td>{{log.username}}</td>
+            <td><span class="badge">{{log.action}}</span></td>
+            <td>{{log.resourceType}}</td>
+            <td>{{log.details}}</td>
+          </tr>}
+        </tbody>
+      </table>
+    </div>}
+    </section>
+  </main>
+</div>

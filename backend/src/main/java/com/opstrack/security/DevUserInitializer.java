@@ -20,6 +20,60 @@ public class DevUserInitializer {
         return args -> {
 
             // -------------------------
+            // Admin development user
+            // -------------------------
+
+            String adminUsername = "admin";
+            String adminPassword =
+                    System.getenv("OPSTRACK_ADMIN_PASSWORD");
+
+            if (adminPassword == null ||
+                    adminPassword.isBlank()) {
+
+                System.out.println(
+                        "OPSTRACK_ADMIN_PASSWORD is not set. " +
+                                "Admin development user was not created."
+                );
+
+            } else {
+
+                AppUser adminUser =
+                        appUserRepository
+                                .findByUsername(adminUsername)
+                                .orElseGet(() ->
+                                        authService.registerUser(
+                                                adminUsername,
+                                                adminPassword,
+                                                Role.ADMIN
+                                        )
+                                );
+
+                boolean adminUpdated = false;
+
+                if (adminUser.getRole() != Role.ADMIN) {
+
+                    adminUser.setRole(Role.ADMIN);
+                    adminUpdated = true;
+                }
+
+                if (adminUser.getTechnician() != null) {
+
+                    adminUser.setTechnician(null);
+                    adminUpdated = true;
+                }
+
+                if (adminUpdated) {
+
+                    appUserRepository.save(adminUser);
+
+                    System.out.println(
+                            "Admin development user updated: " +
+                                    adminUsername
+                    );
+                }
+            }
+
+            // -------------------------
             // QA Inspector development user
             // -------------------------
 
@@ -27,7 +81,8 @@ public class DevUserInitializer {
             String qaPassword =
                     System.getenv("OPSTRACK_QA_PASSWORD");
 
-            if (qaPassword == null || qaPassword.isBlank()) {
+            if (qaPassword == null ||
+                    qaPassword.isBlank()) {
 
                 System.out.println(
                         "OPSTRACK_QA_PASSWORD is not set. " +
@@ -56,7 +111,9 @@ public class DevUserInitializer {
 
             String technicianUsername = "technician";
             String technicianPassword =
-                    System.getenv("OPSTRACK_TECHNICIAN_PASSWORD");
+                    System.getenv(
+                            "OPSTRACK_TECHNICIAN_PASSWORD"
+                    );
 
             if (technicianPassword == null ||
                     technicianPassword.isBlank()) {
@@ -70,7 +127,9 @@ public class DevUserInitializer {
 
                 Technician technician =
                         technicianRepository
-                                .findByEmployeeNumber("DEV-TECH-001")
+                                .findByEmployeeNumber(
+                                        "DEV-TECH-001"
+                                )
                                 .orElseGet(() -> {
 
                                     Technician newTechnician =
@@ -89,7 +148,9 @@ public class DevUserInitializer {
 
                 AppUser technicianUser =
                         appUserRepository
-                                .findByUsername(technicianUsername)
+                                .findByUsername(
+                                        technicianUsername
+                                )
                                 .orElseGet(() ->
                                         authService.registerUser(
                                                 technicianUsername,

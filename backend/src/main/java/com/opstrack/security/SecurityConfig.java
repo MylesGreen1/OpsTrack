@@ -1,8 +1,11 @@
 package com.opstrack.security;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,9 +19,21 @@ import java.util.List;
 @Configuration
 public class SecurityConfig {
 
+    @Value("${CORS_ALLOWED_ORIGINS:http://localhost:4200}")
+    private String allowedOrigins;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration authenticationConfiguration
+    ) throws Exception {
+
+        return authenticationConfiguration
+                .getAuthenticationManager();
     }
 
     @Bean
@@ -28,7 +43,7 @@ public class SecurityConfig {
                 new CorsConfiguration();
 
         configuration.setAllowedOrigins(
-                List.of("http://localhost:4200")
+                List.of(allowedOrigins.split(","))
         );
 
         configuration.setAllowedMethods(
@@ -72,7 +87,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
 
                         .requestMatchers(
-                                "/api/auth/register"
+                                "/api/auth/register",
+                                "/api/auth/login"
                         )
                         .permitAll()
 
@@ -107,6 +123,20 @@ public class SecurityConfig {
                                 "QA_INSPECTOR",
                                 "ADMIN"
                         )
+
+                        .requestMatchers(
+                                "/api/part-requests/**"
+                        )
+                        .hasAnyRole(
+                                "TECHNICIAN",
+                                "SUPERVISOR",
+                                "ADMIN"
+                        )
+
+                        .requestMatchers(
+                                "/api/audit-logs/**"
+                        )
+                        .hasRole("ADMIN")
 
                         .anyRequest()
                         .authenticated()
